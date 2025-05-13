@@ -1,5 +1,5 @@
-import React from 'react';
-import { MantineProvider, Text, Button, Container, Stack, Box } from '@mantine/core';
+// App.tsx
+import { Text, Button, Container, Stack, Box } from '@mantine/core';
 import { AppShellLayout } from './layout/AppShellLayout';
 import { useSpotifyAuth } from './hooks/useSpotifyAuth';
 
@@ -21,9 +21,9 @@ const App: React.FC = () => {
       </Container>
     );
   }
-  
+
   return (
-    <MantineProvider>
+    <>
       {isAuthenticated ? (
         <AppShellLayout
           profile={profile}
@@ -56,7 +56,7 @@ const App: React.FC = () => {
           </Stack>
         </Container>
       )}
-    </MantineProvider>
+    </>
   );
 };
 

@@ -1,11 +1,8 @@
-import React, { useState } from 'react';
 import { 
   AppShell, 
   Burger, 
   Group, 
   Text, 
-  UnstyledButton, 
-  rem, 
   Box, 
   Button, 
   Divider, 
@@ -98,7 +95,6 @@ export const AppShellLayout: React.FC<AppShellLayoutProps> = ({
           
           <Text size="xs" fw={500} c="dimmed" mb="xs">PLAYLISTS</Text>
           
-          {/* This would be populated from the user's playlists */}
           <NavLink
             label="My Playlist #1"
             disabled
