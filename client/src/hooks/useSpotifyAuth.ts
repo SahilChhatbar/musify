@@ -13,7 +13,6 @@ export const useSpotifyAuth = () => {
     const refreshToken = params.get('refresh_token');
     const expiresIn = params.get('expires_in');
     
-    // Clear URL params if present
     if (accessToken && refreshToken && expiresIn) {
       window.history.replaceState({}, document.title, '/');
       
@@ -28,7 +27,6 @@ export const useSpotifyAuth = () => {
       return tokens;
     }
     
-    // Check localStorage
     const storedTokens = localStorage.getItem('spotifyTokens');
     if (storedTokens) {
       return JSON.parse(storedTokens);
@@ -37,7 +35,6 @@ export const useSpotifyAuth = () => {
     return null;
   };
 
-  // Check if token needs refreshing
   const isTokenExpired = (tokens: SpotifyTokens): boolean => {
     const { accessToken, timestamp, expiresIn } = tokens;
     if (!accessToken || !timestamp) return true;
@@ -45,16 +42,14 @@ export const useSpotifyAuth = () => {
     const millisecondsElapsed = Date.now() - timestamp;
     const expiresInMs = expiresIn * 1000;
     
-    // Add a buffer of 5 minutes
     return millisecondsElapsed > expiresInMs - 300000;
   };
 
-  // Handle token refresh
   const refreshToken = async () => {
     if (!tokens?.refreshToken) return null;
     
     try {
-      const response = await axios.post('http://localhost:5000/refresh_token', {
+      const response = await axios.post('http://localhost:3001/refresh_token', {
         refresh_token: tokens.refreshToken
       });
       
@@ -77,10 +72,9 @@ export const useSpotifyAuth = () => {
     }
   };
 
-  // Fetch user profile from Spotify
   const fetchProfile = async (tokenToUse: SpotifyTokens) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/spotify/me', {
+      const response = await axios.post('http://localhost:3001/api/spotify/me', {
         access_token: tokenToUse.accessToken
       });
       
@@ -93,12 +87,10 @@ export const useSpotifyAuth = () => {
     }
   };
 
-  // Login handler
   const login = () => {
-    window.location.href = 'http://localhost:5000/login';
+    window.location.href = 'http://localhost:3001/login';
   };
 
-  // Logout function
   const logout = () => {
     localStorage.removeItem('spotifyTokens');
     setTokens(null);
@@ -106,7 +98,6 @@ export const useSpotifyAuth = () => {
     window.location.href = '/';
   };
 
-  // Initialize authentication state
   useEffect(() => {
     const initAuth = async () => {
       try {
@@ -132,11 +123,9 @@ export const useSpotifyAuth = () => {
     initAuth();
   }, []);
 
-  // Make authenticated API requests to Spotify
   const spotifyApi = async (endpoint: string, method = 'GET', data = {}) => {
     if (!tokens) return null;
     
-    // Check if token needs refresh
     let currentTokens = tokens;
     if (isTokenExpired(currentTokens)) {
       const refreshedTokens = await refreshToken();

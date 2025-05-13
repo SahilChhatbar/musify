@@ -1,4 +1,3 @@
-// App.tsx
 import { Text, Button, Container, Stack, Box } from '@mantine/core';
 import { AppShellLayout } from './layout/AppShellLayout';
 import { useSpotifyAuth } from './hooks/useSpotifyAuth';
