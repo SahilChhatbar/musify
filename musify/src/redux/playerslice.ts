@@ -1,4 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
+import { AppDispatch } from './store';
 import { 
   getPlayerState, 
   playTrack as playTrackAPI, 
@@ -6,7 +7,10 @@ import {
   togglePlay as togglePlayAPI,
   playNextTrack as playNextTrackAPI,
   playPreviousTrack as playPreviousTrackAPI,
-  clearQueue as clearQueueAPI
+  clearQueue as clearQueueAPI,
+  skipForward as skipForwardAPI,
+  skipBackward as skipBackwardAPI,
+  setVolume
 } from '../api/deezerAPI';
 import { PlayerState, Track } from '../types/types';
 
@@ -46,7 +50,7 @@ export const playerSlice = createSlice({
 export const { updatePlayerState, setNotification, clearNotification } = playerSlice.actions;
 
 // Thunks - these handle the API calls and state updates
-export const fetchPlayerState = () => (dispatch: any) => {
+export const fetchPlayerState = () => (dispatch: AppDispatch) => {
   try {
     const state = getPlayerState();
     dispatch(updatePlayerState(state));
@@ -57,11 +61,12 @@ export const fetchPlayerState = () => (dispatch: any) => {
   }
 };
 
-export const playTrack = (track: Track) => (dispatch: any) => {
+export const playTrack = (track: Track) => (dispatch: AppDispatch) => {
   try {
     playTrackAPI(track);
-    // Important: Immediately fetch the updated state to keep Redux in sync
     dispatch(fetchPlayerState());
+    dispatch(setNotification({ type: 'success', message: `Now playing: "${track.title}"` }));
+    setTimeout(() => dispatch(clearNotification()), 3000);
   } catch (error) {
     console.error('Error playing track:', error);
     dispatch(setNotification({ type: 'error', message: 'Failed to play track' }));
@@ -69,13 +74,10 @@ export const playTrack = (track: Track) => (dispatch: any) => {
   }
 };
 
-export const queueTrack = (track: Track) => (dispatch: any) => {
+export const queueTrack = (track: Track) => (dispatch: AppDispatch) => {
   try {
     queueTrackAPI(track);
-    
-    // Immediately fetch the updated state to keep Redux in sync
     dispatch(fetchPlayerState());
-    
     dispatch(setNotification({ type: 'success', message: `"${track.title}" added to queue` }));
     setTimeout(() => dispatch(clearNotification()), 3000);
   } catch (error) {
@@ -85,7 +87,7 @@ export const queueTrack = (track: Track) => (dispatch: any) => {
   }
 };
 
-export const togglePlay = () => (dispatch: any) => {
+export const togglePlay = () => (dispatch: AppDispatch) => {
   try {
     togglePlayAPI();
     dispatch(fetchPlayerState());
@@ -96,10 +98,14 @@ export const togglePlay = () => (dispatch: any) => {
   }
 };
 
-export const playNextTrack = () => (dispatch: any) => {
+export const playNextTrack = () => (dispatch: AppDispatch) => {
   try {
-    playNextTrackAPI();
+    const nextTrack = playNextTrackAPI();
     dispatch(fetchPlayerState());
+    if (nextTrack) {
+      dispatch(setNotification({ type: 'success', message: `Now playing: "${nextTrack.title}"` }));
+      setTimeout(() => dispatch(clearNotification()), 3000);
+    }
   } catch (error) {
     console.error('Error playing next track:', error);
     dispatch(setNotification({ type: 'error', message: 'Failed to play next track' }));
@@ -107,7 +113,7 @@ export const playNextTrack = () => (dispatch: any) => {
   }
 };
 
-export const playPreviousTrack = () => (dispatch: any) => {
+export const playPreviousTrack = () => (dispatch: AppDispatch) => {
   try {
     playPreviousTrackAPI();
     dispatch(fetchPlayerState());
@@ -118,7 +124,40 @@ export const playPreviousTrack = () => (dispatch: any) => {
   }
 };
 
-export const clearQueue = () => (dispatch: any) => {
+export const skipForward = (seconds: number) => (dispatch: AppDispatch) => {
+  try {
+    skipForwardAPI(seconds);
+    dispatch(fetchPlayerState());
+  } catch (error) {
+    console.error('Error skipping forward:', error);
+    dispatch(setNotification({ type: 'error', message: 'Failed to skip forward' }));
+    setTimeout(() => dispatch(clearNotification()), 3000);
+  }
+};
+
+export const skipBackward = (seconds: number) => (dispatch: AppDispatch) => {
+  try {
+    skipBackwardAPI(seconds);
+    dispatch(fetchPlayerState());
+  } catch (error) {
+    console.error('Error skipping backward:', error);
+    dispatch(setNotification({ type: 'error', message: 'Failed to skip backward' }));
+    setTimeout(() => dispatch(clearNotification()), 3000);
+  }
+};
+
+export const setVolumeLevel = (volume: number) => (dispatch: AppDispatch) => {
+  try {
+    setVolume(volume);
+    dispatch(fetchPlayerState());
+  } catch (error) {
+    console.error('Error setting volume:', error);
+    dispatch(setNotification({ type: 'error', message: 'Failed to set volume' }));
+    setTimeout(() => dispatch(clearNotification()), 3000);
+  }
+};
+
+export const clearQueue = () => (dispatch: AppDispatch) => {
   try {
     clearQueueAPI();
     dispatch(fetchPlayerState());

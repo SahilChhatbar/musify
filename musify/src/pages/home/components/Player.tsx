@@ -23,37 +23,23 @@ import {
   IconSearch,
   IconPlus,
 } from "@tabler/icons-react";
+import { Track, MusicPlayerProps } from "../../../types/types";
+import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import {
-  getPlayerState,
   togglePlay,
   skipForward,
   skipBackward,
   playNextTrack,
   playPreviousTrack,
-  setVolume,
+  setVolumeLevel,
   playTrack,
   queueTrack,
-} from "../../../api/deezerAPI";
-import { Track, MusicPlayerProps } from "../../../types/types";
+} from "../../../redux/playerslice";
 
 const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
-  const [playerState, setPlayerState] = useState(getPlayerState());
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [currentTime, setCurrentTime] = useState(0);
-  const [volume, setVolumeState] = useState(1);
+  const dispatch = useAppDispatch();
+  const { playerState } = useAppSelector((state) => state.player);
   const [isMuted, setIsMuted] = useState(false);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      const state = getPlayerState();
-      setPlayerState(state);
-      setIsPlaying(state.isPlaying);
-      setCurrentTime(state.currentTime);
-      setVolumeState(state.volume);
-    }, 250);
-
-    return () => clearInterval(interval);
-  }, []);
 
   const formatTime = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
@@ -66,39 +52,43 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
     : 30;
 
   const handlePlayPause = () => {
-    togglePlay();
+    dispatch(togglePlay());
   };
 
   const handleSkipForward = () => {
-    skipForward(5);
+    dispatch(skipForward(5));
   };
 
   const handleSkipBackward = () => {
-    skipBackward(5);
+    dispatch(skipBackward(5));
   };
 
   const handleNextTrack = () => {
-    playNextTrack();
+    dispatch(playNextTrack());
   };
 
   const handlePreviousTrack = () => {
-    playPreviousTrack();
+    dispatch(playPreviousTrack());
   };
 
   const handleVolumeChange = (value: number) => {
-    setVolume(value);
+    dispatch(setVolumeLevel(value));
     setIsMuted(value === 0);
   };
 
   const toggleMute = () => {
     if (isMuted) {
-      setVolume(volume > 0 ? volume : 1);
+      dispatch(setVolumeLevel(playerState.volume > 0 ? playerState.volume : 1));
       setIsMuted(false);
     } else {
-      setVolume(0);
+      dispatch(setVolumeLevel(0));
       setIsMuted(true);
     }
   };
+
+  useEffect(() => {
+    setIsMuted(playerState.volume === 0);
+  }, [playerState.volume]);
 
   return (
     <Paper p="md" radius="md" className="bg-gray-900 border border-gray-800">
@@ -153,10 +143,10 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
         </Group>
         <Group justify="apart" gap="xs">
           <Text size="xs" c="dimmed" w={40} ta="right">
-            {formatTime(currentTime)}
+            {formatTime(playerState.currentTime)}
           </Text>
           <Slider
-            value={(currentTime / duration) * 100}
+            value={(playerState.currentTime / duration) * 100}
             className="flex-1"
             size="xs"
           />
@@ -186,9 +176,9 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             className="bg-blue-600 hover:bg-blue-700"
             radius="xl"
             onClick={handlePlayPause}
-            title={isPlaying ? "Pause" : "Play"}
+            title={playerState.isPlaying ? "Pause" : "Play"}
           >
-            {isPlaying ? (
+            {playerState.isPlaying ? (
               <IconPlayerPause size={26} />
             ) : (
               <IconPlayerPlay size={26} className="ml-1" />
@@ -220,7 +210,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               {isMuted ? <IconVolumeOff size={18} /> : <IconVolume size={18} />}
             </ActionIcon>
             <Slider
-              value={volume * 100}
+              value={playerState.volume * 100}
               onChange={(value) => handleVolumeChange(value / 100)}
               size="xs"
               className="w-24"
@@ -241,7 +231,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             leftSection={<IconPlus size={16} />}
             disabled={!playerState.currentTrack}
             onClick={() =>
-              playerState.currentTrack && queueTrack(playerState.currentTrack)
+              playerState.currentTrack && dispatch(queueTrack(playerState.currentTrack))
             }
             title="Add current track to queue"
           >
@@ -252,7 +242,9 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
     </Paper>
   );
 };
+
 const MusicPlayerDemo = () => {
+  const dispatch = useAppDispatch();
   const sampleTracks: Track[] = [
     {
       id: 3135556,
@@ -303,10 +295,15 @@ const MusicPlayerDemo = () => {
       link: "",
     },
   ];
+  
+  const navigateToSearch = () => {
+    window.location.href = "/search";
+  };
+  
   return (
     <Stack gap="xl" className="p-4">
       <Title order={2}>Music Player</Title>
-      <MusicPlayer onSearch={() => alert("Search clicked!")} />
+      <MusicPlayer onSearch={navigateToSearch} />
       <Title order={3} className="mt-4">
         Test Tracks
       </Title>
@@ -314,14 +311,14 @@ const MusicPlayerDemo = () => {
         {sampleTracks.map((track) => (
           <Button
             key={track.id}
-            onClick={() => playTrack(track)}
+            onClick={() => dispatch(playTrack(track))}
             variant="light"
           >
             Play: {track.title}
           </Button>
         ))}
         <Button
-          onClick={() => sampleTracks.forEach((track) => queueTrack(track))}
+          onClick={() => sampleTracks.forEach((track) => dispatch(queueTrack(track)))}
           variant="outline"
         >
           Queue All Tracks

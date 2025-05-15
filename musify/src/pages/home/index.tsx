@@ -1,8 +1,41 @@
+import { Stack, Group, Button } from "@mantine/core";
+import { useNavigate } from "react-router-dom";
+import { MusicPlayer } from "./components/Player";
+import { usePlayerSync } from "../../hooks/usePlayerSync";
 
-const index = () => {
+const HomePage = () => {
+  const navigate = useNavigate();
+  // Use the player sync hook to keep the player state in sync with Redux
+  usePlayerSync();
+  
+  const handleSearchClick = () => {
+    navigate("/search");
+  };
+  
+  const handleQueueClick = () => {
+    navigate("/queue");
+  };
+
   return (
-    <div>index</div>
-  )
-}
+    <Stack gap="xl">
+      <MusicPlayer onSearch={handleSearchClick} />
+      <Group justify="center" className="mt-4">
+        <Button 
+          variant="filled" 
+          color="blue" 
+          onClick={handleSearchClick}
+        >
+          Browse Music
+        </Button>
+        <Button 
+          variant="outline" 
+          onClick={handleQueueClick}
+        >
+          View Queue
+        </Button>
+      </Group>
+    </Stack>
+  );
+};
 
-export default index
+export default HomePage;

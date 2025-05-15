@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import {
   Container,
   TextInput,
@@ -30,7 +30,7 @@ const SearchTrackComponent = () => {
   const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 500);
   
   const dispatch = useAppDispatch();
-  const { notification, playerState } = useAppSelector((state) => state.player);
+  const { notification } = useAppSelector((state) => state.player);
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["search", debouncedSearchTerm],
@@ -43,10 +43,12 @@ const SearchTrackComponent = () => {
   };
 
   const handlePlayTrack = (track: Track) => {
+    console.log("Playing track:", track); // Debug log
     dispatch(playTrack(track));
   };
 
   const handleQueueTrack = (track: Track) => {
+    console.log("Queueing track:", track); // Debug log
     dispatch(queueTrack(track));
   };
 
@@ -60,9 +62,19 @@ const SearchTrackComponent = () => {
     <Container size="lg">
       {notification && notification.type === 'success' && (
         <Notification
-          title="Track Added"
+          title="Success"
           icon={<IconCheck size={18} />}
           color="green"
+          onClose={() => {}}
+          className="mb-4"
+        >
+          {notification.message}
+        </Notification>
+      )}
+      {notification && notification.type === 'error' && (
+        <Notification
+          title="Error"
+          color="red"
           onClose={() => {}}
           className="mb-4"
         >

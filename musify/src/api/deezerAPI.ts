@@ -222,7 +222,7 @@ export const getPlayerState = (): PlayerState => {
 
 export const clearQueue = (): void => {
   playerState.queue = [];
-  savePlayerState(); // Save state after clearing queue
+  savePlayerState(); 
 };
 
 export default {

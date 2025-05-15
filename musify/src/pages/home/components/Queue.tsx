@@ -35,10 +35,7 @@ const QueueComponent = () => {
   const { playerState, notification } = useAppSelector((state) => state.player);
 
   useEffect(() => {
-    // Initial fetch of player state
     dispatch(fetchPlayerState());
-    
-    // Set up interval to periodically update player state
     const interval = setInterval(() => {
       dispatch(fetchPlayerState());
     }, 1000);
@@ -85,7 +82,6 @@ const QueueComponent = () => {
             {notification.message}
           </Alert>
         )}
-      
         <Group justify="apart">
           <Title order={2}>Queue</Title>
           {playerState?.queue?.length > 0 && (
@@ -94,7 +90,6 @@ const QueueComponent = () => {
             </Button>
           )}
         </Group>
-        
         {playerState?.currentTrack && (
           <>
             <Title order={4}>Now Playing</Title>
@@ -157,7 +152,6 @@ const QueueComponent = () => {
             </Card>
           </>
         )}
-        
         {playerState?.queue?.length > 0 ? (
           <>
             <Divider />

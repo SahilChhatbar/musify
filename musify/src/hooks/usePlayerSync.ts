@@ -7,12 +7,15 @@ export const usePlayerSync = () => {
   const { playerState, notification } = useAppSelector((state) => state.player);
 
   useEffect(() => {
+    // Fetch player state immediately on component mount
     dispatch(fetchPlayerState());
     
+    // Set up polling interval for continuous updates
     const interval = setInterval(() => {
       dispatch(fetchPlayerState());
     }, 1000);
 
+    // Clean up interval on component unmount
     return () => clearInterval(interval);
   }, [dispatch]);
 

@@ -1,7 +1,7 @@
-import { createBrowserRouter } from "react-router-dom";
+import { createBrowserRouter, Navigate } from "react-router-dom";
 import AppShellLayout from "./layout/AppShellLayout";
 import Search from "./pages/home/components/Search";
-import Player from "./pages/home/components/Player";
+import HomePage from "./pages/home";
 import QueueComponent from "./pages/home/components/Queue";
 
 export const router = createBrowserRouter([
@@ -10,17 +10,22 @@ export const router = createBrowserRouter([
     element: <AppShellLayout />,
     children: [
       {
+        index: true,
+        element: <HomePage />,
+      },
+      {
         path: "/search",
         element: <Search />,
       },
       {
-        index: true,
-        element: <Player />,
-      },
-     {
         path: "/queue",
         element: <QueueComponent />,
-     },
+      },
+      // Catch-all route - redirect to home
+      {
+        path: "*",
+        element: <Navigate to="/" replace />,
+      },
     ],
   },
 ]);
