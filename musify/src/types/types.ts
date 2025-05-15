@@ -40,6 +40,7 @@ export interface PlayerState {
   currentTime: number;
   volume: number;
 }
+
 export interface MusicPlayerProps {
   onSearch?: () => void;
 }
