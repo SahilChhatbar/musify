@@ -49,8 +49,6 @@ export const { updatePlayerState, setNotification, clearNotification } = playerS
 export const fetchPlayerState = () => (dispatch: any) => {
   try {
     const state = getPlayerState();
-    // Add some console logging to debug
-    console.log("Fetched player state:", state);
     dispatch(updatePlayerState(state));
   } catch (error) {
     console.error('Error fetching player state:', error);
@@ -62,6 +60,7 @@ export const fetchPlayerState = () => (dispatch: any) => {
 export const playTrack = (track: Track) => (dispatch: any) => {
   try {
     playTrackAPI(track);
+    // Important: Immediately fetch the updated state to keep Redux in sync
     dispatch(fetchPlayerState());
   } catch (error) {
     console.error('Error playing track:', error);
@@ -72,13 +71,10 @@ export const playTrack = (track: Track) => (dispatch: any) => {
 
 export const queueTrack = (track: Track) => (dispatch: any) => {
   try {
-    console.log("Queueing track:", track);
     queueTrackAPI(track);
     
-    // Important: Fetch the updated state after modifying it
-    const updatedState = getPlayerState();
-    console.log("Updated player state after queueing:", updatedState);
-    dispatch(updatePlayerState(updatedState));
+    // Immediately fetch the updated state to keep Redux in sync
+    dispatch(fetchPlayerState());
     
     dispatch(setNotification({ type: 'success', message: `"${track.title}" added to queue` }));
     setTimeout(() => dispatch(clearNotification()), 3000);

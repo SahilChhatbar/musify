@@ -9,12 +9,35 @@ const deezerApi = axios.create({
   }
 });
 
-let playerState: PlayerState = {
-  currentTrack: null,
-  queue: [],
-  isPlaying: false,
-  currentTime: 0,
-  volume: 1.0
+// Store the player state in localStorage to persist between page navigations
+const getStoredPlayerState = (): PlayerState => {
+  try {
+    const storedState = localStorage.getItem('playerState');
+    if (storedState) {
+      return JSON.parse(storedState);
+    }
+  } catch (error) {
+    console.error('Error parsing stored player state:', error);
+  }
+  
+  return {
+    currentTrack: null,
+    queue: [],
+    isPlaying: false,
+    currentTime: 0,
+    volume: 1.0
+  };
+};
+
+let playerState: PlayerState = getStoredPlayerState();
+
+// Save the player state to localStorage
+const savePlayerState = () => {
+  try {
+    localStorage.setItem('playerState', JSON.stringify(playerState));
+  } catch (error) {
+    console.error('Error saving player state:', error);
+  }
 };
 
 let audioElement: HTMLAudioElement | null = null;
@@ -30,6 +53,7 @@ const initAudio = (): HTMLAudioElement => {
     audioElement.addEventListener('timeupdate', () => {
       if (audioElement) {
         playerState.currentTime = audioElement.currentTime;
+        savePlayerState(); // Save state when current time updates
       }
     });
   }
@@ -75,6 +99,8 @@ export const playTrack = (track: Track): void => {
     console.error('Error playing track:', error);
     playerState.isPlaying = false;
   });
+  
+  savePlayerState(); // Save state after updating
 };
 
 export const queueTrack = (track: Track): QueueItem => {
@@ -89,6 +115,8 @@ export const queueTrack = (track: Track): QueueItem => {
     playTrack(track);
     playerState.queue.shift();
   }  
+  
+  savePlayerState(); // Save state after updating queue
   return queueItem;
 };
 
@@ -109,6 +137,7 @@ export const togglePlay = (): boolean => {
     playerState.isPlaying = true;
   }
   
+  savePlayerState(); // Save state after toggling play
   return playerState.isPlaying;
 };
 
@@ -123,6 +152,7 @@ export const skipForward = (seconds: number = 5): number => {
   audio.currentTime = newTime;
   playerState.currentTime = newTime;
   
+  savePlayerState(); // Save state after updating time
   return newTime;
 };
 
@@ -137,6 +167,7 @@ export const skipBackward = (seconds: number = 5): number => {
   audio.currentTime = newTime;
   playerState.currentTime = newTime;
   
+  savePlayerState(); // Save state after updating time
   return newTime;
 };
 
@@ -145,6 +176,7 @@ export const playNextTrack = (): Track | null => {
   
   if (nextItem) {
     playTrack(nextItem.track);
+    savePlayerState(); // Save state after updating queue
     return nextItem.track;
   } else {
     playerState.currentTrack = null;
@@ -154,6 +186,7 @@ export const playNextTrack = (): Track | null => {
     audio.pause();
     audio.currentTime = 0;
     
+    savePlayerState(); // Save state after clearing current track
     return null;
   }
 };
@@ -164,11 +197,13 @@ export const playPreviousTrack = (): void => {
   if (audio.currentTime > 3) {
     audio.currentTime = 0;
     playerState.currentTime = 0;
+    savePlayerState(); // Save state after updating time
     return;
   }
   
   audio.currentTime = 0;
   playerState.currentTime = 0;
+  savePlayerState(); // Save state after updating time
 };
 
 export const setVolume = (volume: number): number => {
@@ -177,6 +212,7 @@ export const setVolume = (volume: number): number => {
   audio.volume = normalizedVolume;
   playerState.volume = normalizedVolume;
   
+  savePlayerState(); // Save state after updating volume
   return normalizedVolume;
 };
 
@@ -186,6 +222,7 @@ export const getPlayerState = (): PlayerState => {
 
 export const clearQueue = (): void => {
   playerState.queue = [];
+  savePlayerState(); // Save state after clearing queue
 };
 
 export default {
