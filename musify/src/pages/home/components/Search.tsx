@@ -52,7 +52,7 @@ const SearchTrackComponent = () => {
     console.log("Queueing track:", track);
     dispatch(queueTrack(track));
   };
-  
+
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);
