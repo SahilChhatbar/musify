@@ -121,6 +121,20 @@ export const queueTrack = (track: Track): QueueItem => {
   return queueItem;
 };
 
+// New function: Force add to queue without playing it
+export const forceQueueTrack = (track: Track): QueueItem => {
+  const queueItem: QueueItem = {
+    track,
+    queuedAt: new Date()
+  };
+  
+  // Always add to queue regardless of current playback state
+  playerState.queue.push(queueItem);
+  savePlayerState();
+  
+  return queueItem;
+};
+
 export const togglePlay = (): boolean => {
   const audio = initAudio();
   
@@ -237,6 +251,7 @@ export default {
   getTrack,
   playTrack,
   queueTrack,
+  forceQueueTrack,
   togglePlay,
   skipForward,
   skipBackward,

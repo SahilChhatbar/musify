@@ -22,7 +22,7 @@ import { useQuery } from "@tanstack/react-query";
 import { searchTracks } from "../../../api/deezerAPI";
 import { useDebouncedValue } from "@mantine/hooks";
 import { Track } from "../../../types/types";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
+import { useAppDispatch } from "../../../redux/hooks";
 import { playTrack, queueTrack } from "../../../redux/playerslice";
 import { usePlayerSync } from "../../../hooks/usePlayerSync";
 
@@ -52,7 +52,7 @@ const SearchTrackComponent = () => {
     console.log("Queueing track:", track);
     dispatch(queueTrack(track));
   };
-
+  
   const formatDuration = (seconds: number) => {
     const minutes = Math.floor(seconds / 60);
     const remainingSeconds = Math.floor(seconds % 60);

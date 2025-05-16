@@ -4,6 +4,7 @@ import {
   getPlayerState, 
   playTrack as playTrackAPI, 
   queueTrack as queueTrackAPI,
+  forceQueueTrack as forceQueueTrackAPI,
   togglePlay as togglePlayAPI,
   playNextTrack as playNextTrackAPI,
   playPreviousTrack as playPreviousTrackAPI,
@@ -101,7 +102,6 @@ export const queueTrack = (track: Track) => (dispatch: AppDispatch) => {
     setTimeout(() => dispatch(clearNotification()), 3000);
   }
 };
-
 export const togglePlay = () => (dispatch: AppDispatch) => {
   try {
     const isPlaying = togglePlayAPI();
