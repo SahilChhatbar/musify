@@ -18,49 +18,40 @@ import {
   IconPlayerSkipForward,
   IconPlayerSkipBack,
 } from "@tabler/icons-react";
-import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import { 
-  fetchPlayerState,
-  playTrack,
-  clearQueue,
-  togglePlay,
-  playNextTrack,
-  playPreviousTrack
-} from "../../../redux/playerslice";
 import { Track } from "../../../types/types";
+import useAudioPlayer from "../../../hooks/useAudioPlayer";
+import * as audioService from "../../../services/audioServices";
 
 const QueueComponent = () => {
-  const dispatch = useAppDispatch();
-  const { playerState, notification } = useAppSelector((state) => state.player);
-
-  useEffect(() => {
-    dispatch(fetchPlayerState());
-    const interval = setInterval(() => {
-      dispatch(fetchPlayerState());
-    }, 1000);
-
-    return () => clearInterval(interval);
-  }, [dispatch]);
+  const { playerState, notification, showNotification } = useAudioPlayer();
 
   const handlePlayTrack = (track: Track) => {
-    dispatch(playTrack(track));
+    audioService.playTrack(track);
+    showNotification('success', `Now playing: "${track.title}"`);
   };
 
   const handleTogglePlay = () => {
-    dispatch(togglePlay());
+    audioService.togglePlay();
+    
+    if (playerState.currentTrack) {
+      const message = playerState.isPlaying ? 
+        `Paused: "${playerState.currentTrack.title}"` : 
+        `Playing: "${playerState.currentTrack.title}"`;
+      showNotification('success', message);
+    }
   };
 
   const handleNextTrack = () => {
-    dispatch(playNextTrack());
+    audioService.playNextTrack();
   };
 
   const handlePreviousTrack = () => {
-    dispatch(playPreviousTrack());
+    audioService.playPreviousTrack();
   };
 
   const handleClearQueue = () => {
-    dispatch(clearQueue());
+    audioService.clearQueue();
+    showNotification('success', 'Queue cleared');
   };
 
   const formatDuration = (seconds: number) => {

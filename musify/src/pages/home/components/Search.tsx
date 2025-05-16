@@ -22,9 +22,6 @@ import { useQuery } from "@tanstack/react-query";
 import { searchTracks } from "../../../api/deezerAPI";
 import { useDebouncedValue } from "@mantine/hooks";
 import { Track } from "../../../types/types";
-import { useAppDispatch } from "../../../redux/hooks";
-import { playTrack, queueTrack } from "../../../redux/playerslice";
-import { usePlayerSync } from "../../../hooks/usePlayerSync";
 
 const SearchTrackComponent = () => {
   const [searchTerm, setSearchTerm] = useState("");

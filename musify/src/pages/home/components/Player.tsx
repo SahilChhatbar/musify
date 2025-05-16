@@ -24,21 +24,11 @@ import {
   IconPlus,
 } from "@tabler/icons-react";
 import { Track, MusicPlayerProps } from "../../../types/types";
-import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
-import {
-  togglePlay,
-  skipForward,
-  skipBackward,
-  playNextTrack,
-  playPreviousTrack,
-  setVolumeLevel,
-  playTrack,
-  queueTrack,
-} from "../../../redux/playerslice";
+import useAudioPlayer from "../../../hooks/useAudioPlayer";
+import * as audioService from "../../../services/audioServices";
 
 const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
-  const dispatch = useAppDispatch();
-  const { playerState } = useAppSelector((state) => state.player);
+  const { playerState, showNotification } = useAudioPlayer();
   const [isMuted, setIsMuted] = useState(false);
 
   const formatTime = (seconds: number) => {
@@ -52,37 +42,53 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
     : 30;
 
   const handlePlayPause = () => {
-    dispatch(togglePlay());
+    const isPlaying = audioService.togglePlay();
+    if (isPlaying && playerState.currentTrack) {
+      showNotification('success', `Playing: "${playerState.currentTrack.title}"`);
+    }
   };
 
   const handleSkipForward = () => {
-    dispatch(skipForward(5));
+    audioService.skipForward(5);
   };
 
   const handleSkipBackward = () => {
-    dispatch(skipBackward(5));
+    audioService.skipBackward(5);
   };
 
   const handleNextTrack = () => {
-    dispatch(playNextTrack());
+    const nextTrack = audioService.playNextTrack();
+    if (nextTrack) {
+      showNotification('success', `Now playing: "${nextTrack.title}"`);
+    }
   };
 
   const handlePreviousTrack = () => {
-    dispatch(playPreviousTrack());
+    audioService.playPreviousTrack();
+    if (playerState.currentTrack) {
+      showNotification('success', `Restarted: "${playerState.currentTrack.title}"`);
+    }
   };
 
   const handleVolumeChange = (value: number) => {
-    dispatch(setVolumeLevel(value));
+    audioService.setVolume(value / 100);
     setIsMuted(value === 0);
   };
 
   const toggleMute = () => {
     if (isMuted) {
-      dispatch(setVolumeLevel(playerState.volume > 0 ? playerState.volume : 1));
+      audioService.setVolume(playerState.volume > 0 ? playerState.volume : 1);
       setIsMuted(false);
     } else {
-      dispatch(setVolumeLevel(0));
+      audioService.setVolume(0);
       setIsMuted(true);
+    }
+  };
+
+  const handleAddToQueue = () => {
+    if (playerState.currentTrack) {
+      audioService.forceQueueTrack(playerState.currentTrack);
+      showNotification('success', `"${playerState.currentTrack.title}" added to queue`);
     }
   };
 
@@ -211,7 +217,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             </ActionIcon>
             <Slider
               value={playerState.volume * 100}
-              onChange={(value) => handleVolumeChange(value / 100)}
+              onChange={(value) => handleVolumeChange(value)}
               size="xs"
               className="w-24"
             />
@@ -230,9 +236,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             variant="subtle"
             leftSection={<IconPlus size={16} />}
             disabled={!playerState.currentTrack}
-            onClick={() =>
-              playerState.currentTrack && dispatch(queueTrack(playerState.currentTrack))
-            }
+            onClick={handleAddToQueue}
             title="Add current track to queue"
           >
             Queue
@@ -244,7 +248,8 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
 };
 
 const MusicPlayerDemo = () => {
-  const dispatch = useAppDispatch();
+  const { showNotification } = useAudioPlayer();
+  
   const sampleTracks: Track[] = [
     {
       id: 3135556,
@@ -299,6 +304,16 @@ const MusicPlayerDemo = () => {
   const navigateToSearch = () => {
     window.location.href = "/search";
   };
+
+  const handlePlayTrack = (track: Track) => {
+    audioService.playTrack(track);
+    showNotification('success', `Now playing: "${track.title}"`);
+  };
+
+  const handleQueueAllTracks = () => {
+    sampleTracks.forEach(track => audioService.queueTrack(track));
+    showNotification('success', `${sampleTracks.length} tracks added to queue`);
+  };
   
   return (
     <Stack gap="xl" className="p-4">
@@ -311,14 +326,14 @@ const MusicPlayerDemo = () => {
         {sampleTracks.map((track) => (
           <Button
             key={track.id}
-            onClick={() => dispatch(playTrack(track))}
+            onClick={() => handlePlayTrack(track)}
             variant="light"
           >
             Play: {track.title}
           </Button>
         ))}
         <Button
-          onClick={() => sampleTracks.forEach((track) => dispatch(queueTrack(track)))}
+          onClick={handleQueueAllTracks}
           variant="outline"
         >
           Queue All Tracks
