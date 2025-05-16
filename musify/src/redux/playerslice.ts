@@ -76,14 +76,21 @@ export const playTrack = (track: Track) => (dispatch: AppDispatch) => {
 
 export const queueTrack = (track: Track) => (dispatch: AppDispatch) => {
   try {
+    // Call the API to queue the track
     const queueItem = queueTrackAPI(track);
+    
     // Force a state update to reflect the new queue
-    dispatch(fetchPlayerState());
+    const updatedState = getPlayerState();
+    dispatch(updatePlayerState(updatedState));
     
     // Check if the track was added to queue or started playing directly
-    if (!queueItem || getPlayerState().currentTrack?.id === track.id) {
+    // We need to check if the current track is the same as the one we just queued
+    if (updatedState.currentTrack && updatedState.currentTrack.id === track.id && 
+        updatedState.queue.length === 0) {
+      // The track is now playing (wasn't added to queue because nothing was playing)
       dispatch(setNotification({ type: 'success', message: `Now playing: "${track.title}"` }));
     } else {
+      // The track was added to the queue
       dispatch(setNotification({ type: 'success', message: `"${track.title}" added to queue` }));
     }
     

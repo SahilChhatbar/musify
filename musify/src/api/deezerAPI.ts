@@ -109,16 +109,12 @@ export const queueTrack = (track: Track): QueueItem => {
     queuedAt: new Date()
   };
   
-  playerState.queue.push(queueItem);
-  
   // Only play the track if there's no current track playing
   if (!playerState.currentTrack) {
     playTrack(track);
-    // Important: We remove the track from queue only after
-    // confirming it's now the current track
-    if (playerState.queue.length > 0) {
-      playerState.queue.shift();
-    }
+  } else {
+    // Add to queue if there's already a track playing
+    playerState.queue.push(queueItem);
   }  
   
   savePlayerState(); // Save state after updating queue
