@@ -76,9 +76,17 @@ export const playTrack = (track: Track) => (dispatch: AppDispatch) => {
 
 export const queueTrack = (track: Track) => (dispatch: AppDispatch) => {
   try {
-    queueTrackAPI(track);
+    const queueItem = queueTrackAPI(track);
+    // Force a state update to reflect the new queue
     dispatch(fetchPlayerState());
-    dispatch(setNotification({ type: 'success', message: `"${track.title}" added to queue` }));
+    
+    // Check if the track was added to queue or started playing directly
+    if (!queueItem || getPlayerState().currentTrack?.id === track.id) {
+      dispatch(setNotification({ type: 'success', message: `Now playing: "${track.title}"` }));
+    } else {
+      dispatch(setNotification({ type: 'success', message: `"${track.title}" added to queue` }));
+    }
+    
     setTimeout(() => dispatch(clearNotification()), 3000);
   } catch (error) {
     console.error('Error queueing track:', error);
@@ -89,8 +97,15 @@ export const queueTrack = (track: Track) => (dispatch: AppDispatch) => {
 
 export const togglePlay = () => (dispatch: AppDispatch) => {
   try {
-    togglePlayAPI();
+    const isPlaying = togglePlayAPI();
     dispatch(fetchPlayerState());
+    if (isPlaying) {
+      const state = getPlayerState();
+      if (state.currentTrack) {
+        dispatch(setNotification({ type: 'success', message: `Playing: "${state.currentTrack.title}"` }));
+        setTimeout(() => dispatch(clearNotification()), 2000);
+      }
+    }
   } catch (error) {
     console.error('Error toggling play state:', error);
     dispatch(setNotification({ type: 'error', message: 'Failed to toggle playback' }));
@@ -105,7 +120,7 @@ export const playNextTrack = () => (dispatch: AppDispatch) => {
     if (nextTrack) {
       dispatch(setNotification({ type: 'success', message: `Now playing: "${nextTrack.title}"` }));
       setTimeout(() => dispatch(clearNotification()), 3000);
-    }
+    } 
   } catch (error) {
     console.error('Error playing next track:', error);
     dispatch(setNotification({ type: 'error', message: 'Failed to play next track' }));
@@ -117,6 +132,13 @@ export const playPreviousTrack = () => (dispatch: AppDispatch) => {
   try {
     playPreviousTrackAPI();
     dispatch(fetchPlayerState());
+    
+    // Check if we have a current track after resetting
+    const state = getPlayerState();
+    if (state.currentTrack) {
+      dispatch(setNotification({ type: 'success', message: `Restarted: "${state.currentTrack.title}"` }));
+      setTimeout(() => dispatch(clearNotification()), 2000);
+    }
   } catch (error) {
     console.error('Error playing previous track:', error);
     dispatch(setNotification({ type: 'error', message: 'Failed to play previous track' }));

@@ -111,9 +111,14 @@ export const queueTrack = (track: Track): QueueItem => {
   
   playerState.queue.push(queueItem);
   
+  // Only play the track if there's no current track playing
   if (!playerState.currentTrack) {
     playTrack(track);
-    playerState.queue.shift();
+    // Important: We remove the track from queue only after
+    // confirming it's now the current track
+    if (playerState.queue.length > 0) {
+      playerState.queue.shift();
+    }
   }  
   
   savePlayerState(); // Save state after updating queue
@@ -172,13 +177,8 @@ export const skipBackward = (seconds: number = 5): number => {
 };
 
 export const playNextTrack = (): Track | null => {
-  const nextItem = playerState.queue.shift();
-  
-  if (nextItem) {
-    playTrack(nextItem.track);
-    savePlayerState(); // Save state after updating queue
-    return nextItem.track;
-  } else {
+  if (playerState.queue.length === 0) {
+    // No more tracks in queue
     playerState.currentTrack = null;
     playerState.isPlaying = false;
     
@@ -189,6 +189,17 @@ export const playNextTrack = (): Track | null => {
     savePlayerState(); // Save state after clearing current track
     return null;
   }
+  
+  // Get the next track from the queue
+  const nextItem = playerState.queue.shift();
+  
+  if (nextItem) {
+    playTrack(nextItem.track);
+    savePlayerState(); // Save state after updating queue
+    return nextItem.track;
+  }
+  
+  return null;
 };
 
 export const playPreviousTrack = (): void => {

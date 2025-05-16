@@ -13,7 +13,7 @@ export const usePlayerSync = () => {
     // Set up polling interval for continuous updates
     const interval = setInterval(() => {
       dispatch(fetchPlayerState());
-    }, 1000);
+    }, 500); // Reduced interval for more responsive updates
 
     // Clean up interval on component unmount
     return () => clearInterval(interval);

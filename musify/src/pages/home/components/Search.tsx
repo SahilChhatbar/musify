@@ -24,13 +24,14 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { Track } from "../../../types/types";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { playTrack, queueTrack } from "../../../redux/playerslice";
+import { usePlayerSync } from "../../../hooks/usePlayerSync";
 
 const SearchTrackComponent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 500);
   
   const dispatch = useAppDispatch();
-  const { notification } = useAppSelector((state) => state.player);
+  const { playerState, notification } = usePlayerSync();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["search", debouncedSearchTerm],
@@ -43,12 +44,12 @@ const SearchTrackComponent = () => {
   };
 
   const handlePlayTrack = (track: Track) => {
-    console.log("Playing track:", track); // Debug log
+    console.log("Playing track:", track); 
     dispatch(playTrack(track));
   };
 
   const handleQueueTrack = (track: Track) => {
-    console.log("Queueing track:", track); // Debug log
+    console.log("Queueing track:", track);
     dispatch(queueTrack(track));
   };
 
