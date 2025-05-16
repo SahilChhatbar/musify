@@ -18,7 +18,7 @@ import {
   IconPlayerSkipForward,
   IconPlayerSkipBack,
 } from "@tabler/icons-react";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../../redux/hooks";
 import { 
   fetchPlayerState,

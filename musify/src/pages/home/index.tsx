@@ -5,7 +5,6 @@ import { usePlayerSync } from "../../hooks/usePlayerSync";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  // Use the player sync hook to keep the player state in sync with Redux
   usePlayerSync();
   
   const handleSearchClick = () => {
