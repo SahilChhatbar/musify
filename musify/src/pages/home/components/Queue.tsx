@@ -11,54 +11,26 @@ import {
   Alert,
   Progress,
 } from "@mantine/core";
-import { 
-  IconPlayerPlay, 
-  IconPlayerPause, 
+import {
+  IconPlayerPlay,
+  IconPlayerPause,
   IconAlertCircle,
   IconPlayerSkipForward,
   IconPlayerSkipBack,
 } from "@tabler/icons-react";
-import { Track } from "../../../types/types";
-import useAudioPlayer from "../../../hooks/useAudioPlayer";
-import * as audioService from "../../../services/audioServices";
+import { usePlayerContext } from "../../../context/PlayerContext";
+import { formatTime } from "../../../util/formatTime";
 
-const QueueComponent = () => {
-  const { playerState, notification, showNotification } = useAudioPlayer();
-
-  const handlePlayTrack = (track: Track) => {
-    audioService.playTrack(track);
-    showNotification('success', `Now playing: "${track.title}"`);
-  };
-
-  const handleTogglePlay = () => {
-    audioService.togglePlay();
-    
-    if (playerState.currentTrack) {
-      const message = playerState.isPlaying ? 
-        `Paused: "${playerState.currentTrack.title}"` : 
-        `Playing: "${playerState.currentTrack.title}"`;
-      showNotification('success', message);
-    }
-  };
-
-  const handleNextTrack = () => {
-    audioService.playNextTrack();
-  };
-
-  const handlePreviousTrack = () => {
-    audioService.playPreviousTrack();
-  };
-
-  const handleClearQueue = () => {
-    audioService.clearQueue();
-    showNotification('success', 'Queue cleared');
-  };
-
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
-  };
+const Queue = () => {
+  const {
+    playerState,
+    notification,
+    playTrack,
+    togglePlay,
+    playNextTrack,
+    playPreviousTrack,
+    clearQueue,
+  } = usePlayerContext();
 
   const calculateProgress = () => {
     if (!playerState?.currentTrack) return 0;
@@ -66,9 +38,9 @@ const QueueComponent = () => {
   };
 
   return (
-    <Container size="lg">
+    <Container size="lg" className="mb-32">
       <Stack gap="lg">
-        {notification && notification.type === 'error' && (
+        {notification && notification.type === "error" && (
           <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
             {notification.message}
           </Alert>
@@ -76,7 +48,7 @@ const QueueComponent = () => {
         <Group justify="apart">
           <Title order={2}>Queue</Title>
           {playerState?.queue?.length > 0 && (
-            <Button variant="subtle" c="red" onClick={handleClearQueue}>
+            <Button variant="subtle" c="red" onClick={clearQueue}>
               Clear Queue
             </Button>
           )}
@@ -89,9 +61,9 @@ const QueueComponent = () => {
                 <Group justify="apart">
                   <Group>
                     <Stack>
-                      <Button 
-                        variant="subtle" 
-                        onClick={handleTogglePlay}
+                      <Button
+                        variant="subtle"
+                        onClick={togglePlay}
                         title={playerState.isPlaying ? "Pause" : "Play"}
                       >
                         {playerState.isPlaying ? (
@@ -102,23 +74,23 @@ const QueueComponent = () => {
                       </Button>
                     </Stack>
                     <Stack>
-                      <Text fw={500}>{playerState.currentTrack.title}</Text>
+                      <Text fw={500}>{playerState?.currentTrack?.title}</Text>
                       <Text size="sm" c="dimmed">
-                        {playerState.currentTrack.artist.name}
+                        {playerState?.currentTrack?.artist?.name}
                       </Text>
                     </Stack>
                   </Group>
                   <Group>
-                    <Button 
-                      variant="subtle" 
-                      onClick={handlePreviousTrack}
+                    <Button
+                      variant="subtle"
+                      onClick={playPreviousTrack}
                       title="Previous"
                     >
                       <IconPlayerSkipBack size={16} />
                     </Button>
-                    <Button 
-                      variant="subtle" 
-                      onClick={handleNextTrack}
+                    <Button
+                      variant="subtle"
+                      onClick={playNextTrack}
                       title="Next"
                     >
                       <IconPlayerSkipForward size={16} />
@@ -127,16 +99,16 @@ const QueueComponent = () => {
                 </Group>
                 <Group>
                   <Text size="xs" c="dimmed">
-                    {formatDuration(playerState.currentTime)}
+                    {formatTime(playerState?.currentTime)}
                   </Text>
-                  <Progress 
-                    value={calculateProgress()} 
+                  <Progress
+                    value={calculateProgress()}
                     className="flex-1"
                     size="xs"
                     color="blue"
                   />
                   <Text size="xs" c="dimmed">
-                    {formatDuration(playerState.currentTrack.duration)}
+                    {formatTime(playerState?.currentTrack?.duration)}
                   </Text>
                 </Group>
               </Stack>
@@ -150,7 +122,7 @@ const QueueComponent = () => {
             <Stack gap="sm">
               {playerState.queue.map((item, index) => (
                 <Card
-                  key={`${item.track.id}-${index}`}
+                  key={`${item?.track?.id}-${index}`}
                   padding="md"
                   radius="md"
                   className="bg-gray-800 hover:bg-gray-700 transition-cs"
@@ -160,20 +132,18 @@ const QueueComponent = () => {
                       <Text size="sm" c="dimmed" className="w-6">
                         {index + 1}
                       </Text>
-                      <div>
-                        <Text fw={500}>{item.track.title}</Text>
-                        <Text size="sm" c="dimmed">
-                          {item.track.artist.name}
-                        </Text>
-                      </div>
+                      <Text fw={500}>{item.track.title}</Text>
+                      <Text size="sm" c="dimmed">
+                        {item?.track?.artist?.name}
+                      </Text>
                     </Group>
                     <Group gap="sm">
                       <Text size="sm" c="dimmed">
-                        {formatDuration(item.track.duration)}
+                        {formatTime(item?.track?.duration)}
                       </Text>
                       <Button
                         variant="subtle"
-                        onClick={() => handlePlayTrack(item.track)}
+                        onClick={() => playTrack(item?.track)}
                         title="Play this track"
                       >
                         <IconPlayerPlay size={16} />
@@ -199,4 +169,4 @@ const QueueComponent = () => {
   );
 };
 
-export default QueueComponent;
+export default Queue;

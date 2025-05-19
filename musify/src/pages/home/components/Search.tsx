@@ -22,14 +22,14 @@ import { useQuery } from "@tanstack/react-query";
 import { searchTracks } from "../../../api/deezerAPI";
 import { useDebouncedValue } from "@mantine/hooks";
 import { Track } from "../../../types/types";
-import useAudioPlayer from "../../../hooks/useAudioPlayer";
-import * as audioService from "../../../services/audioServices";
+import { usePlayerContext } from "../../../context/PlayerContext";
+import { formatTime } from "../../../util/formatTime";
 
-const SearchTrackComponent = () => {
+const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 500);
   
-  const { playerState, notification, showNotification } = useAudioPlayer();
+  const { playTrack, queueTrack, notification } = usePlayerContext();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["search", debouncedSearchTerm],
@@ -39,22 +39,6 @@ const SearchTrackComponent = () => {
 
   const handleSearchChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setSearchTerm(event.target.value);
-  };
-
-  const handlePlayTrack = (track: Track) => {
-    audioService.playTrack(track);
-    showNotification('success', `Now playing: "${track.title}"`);
-  };
-
-  const handleQueueTrack = (track: Track) => {
-    audioService.queueTrack(track);
-    showNotification('success', `"${track.title}" added to queue`);
-  };
-
-  const formatDuration = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = Math.floor(seconds % 60);
-    return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
   };
 
   return (
@@ -103,7 +87,7 @@ const SearchTrackComponent = () => {
             spacing="md"
             verticalSpacing="md"
           >
-            {data.data.map((track: Track) => (
+            {data .data.map((track: Track) => (
               <Card
                 key={track.id}
                 shadow="sm"
@@ -113,36 +97,36 @@ const SearchTrackComponent = () => {
               >
                 <Card.Section>
                   <Image
-                    src={track.album.cover_medium || "/api/placeholder/300/300"}
+                    src={track?.album?.cover_medium || "/api/placeholder/300/300"}
                     height={160}
-                    alt={track.title}
+                    alt={track?.title}
                   />
                 </Card.Section>
                 <Group justify="apart" mt="md" mb="xs">
                   <Text fw={500} lineClamp={1}>
-                    {track.title}
+                    {track?.title}
                   </Text>
                 </Group>
                 <Text size="sm" c="dimmed" lineClamp={1}>
-                  {track.artist.name}
+                  {track?.artist?.name}
                 </Text>
                 <Group justify="space-between" mt="md">
                   <Text size="sm" c="dimmed">
-                    {formatDuration(track.duration)}
+                    {formatTime(track?.duration)}
                   </Text>
                   <Group>
                     <Button
                       leftSection={<IconPlayerPlay size={16} />}
                       variant="light"
                       c="blue"
-                      onClick={() => handlePlayTrack(track)}
+                      onClick={() => playTrack(track)}
                     >
                       Play
                     </Button>
                     <Button
                       leftSection={<IconPlaylistAdd size={16} />}
                       variant="subtle"
-                      onClick={() => handleQueueTrack(track)}
+                      onClick={() => queueTrack(track)}
                     >
                       Queue
                     </Button>
@@ -157,4 +141,4 @@ const SearchTrackComponent = () => {
   );
 };
 
-export default SearchTrackComponent;
+export default Search;

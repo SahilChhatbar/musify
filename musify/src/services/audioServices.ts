@@ -1,4 +1,6 @@
 import { Track, QueueItem, PlayerState } from '../types/types';
+import { listeners } from '../constants';
+
 
 export type AudioServiceEvent = 
   | 'play'
@@ -9,15 +11,6 @@ export type AudioServiceEvent =
   | 'volumeChange'
   | 'end';
 
-const listeners: { [key in AudioServiceEvent]: Function[] } = {
-  play: [],
-  pause: [],
-  trackChange: [],
-  timeUpdate: [],
-  queueUpdate: [],
-  volumeChange: [],
-  end: []
-};
 
 const defaultPlayerState: PlayerState = {
   currentTrack: null,

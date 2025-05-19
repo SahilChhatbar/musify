@@ -1,6 +1,5 @@
 import { Stack, Group, Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
-import { MusicPlayer } from "./components/Player";
 
 const HomePage = () => {
   const navigate = useNavigate();
@@ -15,7 +14,6 @@ const HomePage = () => {
 
   return (
     <Stack gap="xl">
-      <MusicPlayer onSearch={handleSearchClick} />
       <Group justify="center" className="mt-4">
         <Button 
           variant="filled" 

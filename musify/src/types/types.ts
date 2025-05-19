@@ -44,3 +44,22 @@ export interface PlayerState {
 export interface MusicPlayerProps {
   onSearch?: () => void;
 }
+
+export interface PlayerContextProps {
+  playerState: PlayerState;
+  playTrack: (track: Track) => void;
+  queueTrack: (track: Track) => void;
+  togglePlay: () => boolean;
+  skipForward: (seconds?: number) => number;
+  skipBackward: (seconds?: number) => number;
+  playNextTrack: () => Track | null;
+  playPreviousTrack: () => void;
+  setVolume: (volume: number) => number;
+  clearQueue: () => void;
+  notification: {
+    type: 'success' | 'error';
+    message: string;
+  } | null;
+  showNotification: (type: 'success' | 'error', message: string) => void;
+}
+
