@@ -22,13 +22,14 @@ import { useQuery } from "@tanstack/react-query";
 import { searchTracks } from "../../../api/deezerAPI";
 import { useDebouncedValue } from "@mantine/hooks";
 import { Track } from "../../../types/types";
+import useAudioPlayer from "../../../hooks/useAudioPlayer";
+import * as audioService from "../../../services/audioServices";
 
 const SearchTrackComponent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 500);
   
-  const dispatch = useAppDispatch();
-  const { playerState, notification } = usePlayerSync();
+  const { playerState, notification, showNotification } = useAudioPlayer();
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["search", debouncedSearchTerm],
@@ -41,13 +42,13 @@ const SearchTrackComponent = () => {
   };
 
   const handlePlayTrack = (track: Track) => {
-    console.log("Playing track:", track); 
-    dispatch(playTrack(track));
+    audioService.playTrack(track);
+    showNotification('success', `Now playing: "${track.title}"`);
   };
 
   const handleQueueTrack = (track: Track) => {
-    console.log("Queueing track:", track);
-    dispatch(queueTrack(track));
+    audioService.queueTrack(track);
+    showNotification('success', `"${track.title}" added to queue`);
   };
 
   const formatDuration = (seconds: number) => {
@@ -58,21 +59,11 @@ const SearchTrackComponent = () => {
 
   return (
     <Container size="lg">
-      {notification && notification.type === 'success' && (
+      {notification && (
         <Notification
-          title="Success"
-          icon={<IconCheck size={18} />}
-          color="green"
-          onClose={() => {}}
-          className="mb-4"
-        >
-          {notification.message}
-        </Notification>
-      )}
-      {notification && notification.type === 'error' && (
-        <Notification
-          title="Error"
-          color="red"
+          title={notification.type === 'success' ? "Success" : "Error"}
+          icon={notification.type === 'success' ? <IconCheck size={18} /> : null}
+          color={notification.type === 'success' ? "green" : "red"}
           onClose={() => {}}
           className="mb-4"
         >

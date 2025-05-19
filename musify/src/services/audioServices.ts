@@ -1,6 +1,5 @@
 import { Track, QueueItem, PlayerState } from '../types/types';
 
-// Define AudioService event types
 export type AudioServiceEvent = 
   | 'play'
   | 'pause'
@@ -10,7 +9,6 @@ export type AudioServiceEvent =
   | 'volumeChange'
   | 'end';
 
-// Event listeners store
 const listeners: { [key in AudioServiceEvent]: Function[] } = {
   play: [],
   pause: [],
@@ -21,7 +19,6 @@ const listeners: { [key in AudioServiceEvent]: Function[] } = {
   end: []
 };
 
-// Initial player state
 const defaultPlayerState: PlayerState = {
   currentTrack: null,
   queue: [],
@@ -30,10 +27,8 @@ const defaultPlayerState: PlayerState = {
   volume: 1.0
 };
 
-// Singleton audio element
 let audioElement: HTMLAudioElement | null = null;
 
-// Initialize audio element
 const initAudio = (): HTMLAudioElement => {
   if (typeof window !== 'undefined' && !audioElement) {
     audioElement = new Audio();
@@ -56,7 +51,6 @@ const initAudio = (): HTMLAudioElement => {
   return audioElement as HTMLAudioElement;
 };
 
-// Get player state from localStorage
 export const getPlayerState = (): PlayerState => {
   try {
     const storedState = localStorage.getItem('playerState');
@@ -70,7 +64,6 @@ export const getPlayerState = (): PlayerState => {
   return {...defaultPlayerState};
 };
 
-// Save player state to localStorage
 export const savePlayerState = (state: PlayerState): void => {
   try {
     localStorage.setItem('playerState', JSON.stringify(state));
@@ -79,21 +72,18 @@ export const savePlayerState = (state: PlayerState): void => {
   }
 };
 
-// Add event listener
 export const addEventListener = (event: AudioServiceEvent, callback: Function): void => {
   if (listeners[event]) {
     listeners[event].push(callback);
   }
 };
 
-// Remove event listener
 export const removeEventListener = (event: AudioServiceEvent, callback: Function): void => {
   if (listeners[event]) {
     listeners[event] = listeners[event].filter(cb => cb !== callback);
   }
 };
 
-// Notify all listeners of an event
 const notifyListeners = (event: AudioServiceEvent): void => {
   if (listeners[event]) {
     const playerState = getPlayerState();
@@ -101,7 +91,6 @@ const notifyListeners = (event: AudioServiceEvent): void => {
   }
 };
 
-// Play a track
 export const playTrack = (track: Track): void => {
   const audio = initAudio();
   const playerState = getPlayerState();
@@ -123,7 +112,6 @@ export const playTrack = (track: Track): void => {
   notifyListeners('play');
 };
 
-// Queue a track
 export const queueTrack = (track: Track): QueueItem => {
   const playerState = getPlayerState();
   
@@ -132,11 +120,9 @@ export const queueTrack = (track: Track): QueueItem => {
     queuedAt: new Date()
   };
   
-  // Only play the track if there's no current track playing
   if (!playerState.currentTrack) {
     playTrack(track);
   } else {
-    // Add to queue if there's already a track playing
     playerState.queue.push(queueItem);
     savePlayerState(playerState);
     notifyListeners('queueUpdate');
@@ -145,7 +131,6 @@ export const queueTrack = (track: Track): QueueItem => {
   return queueItem;
 };
 
-// Force add to queue without playing it
 export const forceQueueTrack = (track: Track): QueueItem => {
   const playerState = getPlayerState();
   
@@ -154,7 +139,6 @@ export const forceQueueTrack = (track: Track): QueueItem => {
     queuedAt: new Date()
   };
   
-  // Always add to queue regardless of current playback state
   playerState.queue.push(queueItem);
   savePlayerState(playerState);
   notifyListeners('queueUpdate');
@@ -162,7 +146,6 @@ export const forceQueueTrack = (track: Track): QueueItem => {
   return queueItem;
 };
 
-// Toggle play/pause
 export const togglePlay = (): boolean => {
   const audio = initAudio();
   const playerState = getPlayerState();
@@ -187,7 +170,6 @@ export const togglePlay = (): boolean => {
   return playerState.isPlaying;
 };
 
-// Skip forward
 export const skipForward = (seconds: number = 5): number => {
   const audio = initAudio();
   const playerState = getPlayerState();
@@ -205,7 +187,6 @@ export const skipForward = (seconds: number = 5): number => {
   return newTime;
 };
 
-// Skip backward
 export const skipBackward = (seconds: number = 5): number => {
   const audio = initAudio();
   const playerState = getPlayerState();
@@ -223,12 +204,10 @@ export const skipBackward = (seconds: number = 5): number => {
   return newTime;
 };
 
-// Play next track
 export const playNextTrack = (): Track | null => {
   const playerState = getPlayerState();
   
   if (playerState.queue.length === 0) {
-    // No more tracks in queue
     playerState.currentTrack = null;
     playerState.isPlaying = false;
     
@@ -241,7 +220,6 @@ export const playNextTrack = (): Track | null => {
     return null;
   }
   
-  // Get the next track from the queue
   const nextItem = playerState.queue.shift();
   savePlayerState(playerState);
   
@@ -253,13 +231,11 @@ export const playNextTrack = (): Track | null => {
   return null;
 };
 
-// Play previous track / restart current track
 export const playPreviousTrack = (): void => {
   const audio = initAudio();
   const playerState = getPlayerState();
   
   if (audio.currentTime > 3) {
-    // If more than 3 seconds in, just restart the current track
     audio.currentTime = 0;
     playerState.currentTime = 0;
     savePlayerState(playerState);
@@ -267,14 +243,12 @@ export const playPreviousTrack = (): void => {
     return;
   }
   
-  // Otherwise restart from beginning
   audio.currentTime = 0;
   playerState.currentTime = 0;
   savePlayerState(playerState);
   notifyListeners('timeUpdate');
 };
 
-// Set volume
 export const setVolume = (volume: number): number => {
   const audio = initAudio();
   const playerState = getPlayerState();
@@ -288,7 +262,6 @@ export const setVolume = (volume: number): number => {
   return normalizedVolume;
 };
 
-// Clear queue
 export const clearQueue = (): void => {
   const playerState = getPlayerState();
   playerState.queue = [];

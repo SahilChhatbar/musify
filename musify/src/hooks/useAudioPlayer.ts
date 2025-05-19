@@ -14,13 +14,11 @@ export const useAudioPlayer = () => {
     message: string;
   } | null>(null);
 
-  // Handle player state updates
   const handleStateUpdate = () => {
     setPlayerState({...getPlayerState()});
   };
 
   useEffect(() => {
-    // Register event listeners
     const events: AudioServiceEvent[] = [
       'play', 
       'pause', 
@@ -35,15 +33,12 @@ export const useAudioPlayer = () => {
       addEventListener(event, handleStateUpdate);
     });
 
-    // Initial state fetch
     setPlayerState({...getPlayerState()});
     
-    // Set up polling interval for continuous updates (helpful for timeUpdate)
     const interval = setInterval(() => {
       setPlayerState({...getPlayerState()});
     }, 500);
 
-    // Clean up event listeners and interval on unmount
     return () => {
       events.forEach(event => {
         removeEventListener(event, handleStateUpdate);
@@ -52,11 +47,9 @@ export const useAudioPlayer = () => {
     };
   }, []);
 
-  // Show notification
   const showNotification = (type: 'success' | 'error', message: string) => {
     setNotification({ type, message });
     
-    // Auto-clear notification after 3 seconds
     setTimeout(() => {
       setNotification(null);
     }, 3000);

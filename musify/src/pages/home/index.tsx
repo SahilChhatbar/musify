@@ -1,12 +1,10 @@
 import { Stack, Group, Button } from "@mantine/core";
 import { useNavigate } from "react-router-dom";
 import { MusicPlayer } from "./components/Player";
-import { usePlayerSync } from "../../hooks/usePlayerSync";
 
 const HomePage = () => {
   const navigate = useNavigate();
-  usePlayerSync();
-  
+
   const handleSearchClick = () => {
     navigate("/search");
   };
