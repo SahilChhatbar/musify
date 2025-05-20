@@ -11,6 +11,7 @@ import {
   Loader,
   Center,
   Notification,
+  Title,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -42,7 +43,7 @@ const Search = () => {
   };
 
   return (
-    <Container size="lg">
+    <Container size="lg" mb={10}>
       {notification && (
         <Notification
           title={notification.type === "success" ? "Success" : "Error"}
@@ -51,26 +52,33 @@ const Search = () => {
           }
           color={notification.type === "success" ? "green" : "red"}
           onClose={() => {}}
-          className="mb-4"
-        >
+           >
           {notification.message}
         </Notification>
       )}
+      <Title order={2} className="mb-4 text-white">Search Music</Title>
       <TextInput
         placeholder="Search for tracks, artists, or albums"
-        rightSection={<IconSearch size={16} />}
+        rightSection={<IconSearch size={18} className="text-gray-400" />}
         value={searchTerm}
         onChange={handleSearchChange}
-        className="mb-4"
-        size="md"
+        size="lg"
+        radius="md"
+        styles={{
+          input: {
+            backgroundColor: "rgba(30, 31, 48, 0.6)",
+            borderColor: "#3b3b4f",
+            color: "white"
+          }
+        }}
       />
       {isLoading && debouncedSearchTerm.length > 1 && (
-        <Center>
-          <Loader />
+        <Center className="py-12">
+          <Loader color="blue" size="lg" />
         </Center>
       )}
       {error && (
-        <Text c="red" className="text-center p-4">
+        <Text c="red" className="text-center p-8 bg-gray-800 rounded-lg">
           An error occurred while searching. Please try again.
         </Text>
       )}
@@ -78,64 +86,71 @@ const Search = () => {
         !error &&
         data?.data?.length === 0 &&
         debouncedSearchTerm.length > 1 && (
-          <Text c="dimmed" className="text-center p-4">
-            No results found for "{debouncedSearchTerm}"
-          </Text>
+          <Center className="py-12">
+            <Text c="dimmed" className="text-center p-4">
+              No results found for "{debouncedSearchTerm}"
+            </Text>
+          </Center>
         )}
       {!isLoading && !error && data?.data && data.data.length > 0 && (
-        <SimpleGrid
-          cols={{ base: 1, sm: 2, md: 3 }}
-          spacing="md"
-          verticalSpacing="md"
-        >
-          {data.data.map((track: Track) => (
-            <Card
-              key={track.id}
-              shadow="sm"
-              padding="lg"
-              radius="md"
-              className="bg-gray-800 hover:bg-gray-700 transition-cs"
-            >
-              <Card.Section>
-                <Image
-                  src={track?.album?.cover_medium || "/api/placeholder/300/300"}
-                  height={160}
-                  alt={track?.title}
-                />
-              </Card.Section>
-              <Group justify="apart" mt="md" mb="xs">
-                <Text fw={500} lineClamp={1}>
-                  {track?.title}
-                </Text>
-              </Group>
-              <Text size="sm" c="dimmed" lineClamp={1}>
-                {track?.artist?.name}
-              </Text>
-              <Group justify="space-between" mt="md">
-                <Text size="sm" c="dimmed">
-                  {formatTime(track?.duration)}
-                </Text>
-                <Group>
-                  <Button
-                    leftSection={<IconPlayerPlay size={16} />}
-                    variant="light"
-                    c="blue"
-                    onClick={() => playTrack(track)}
-                  >
-                    Play
-                  </Button>
-                  <Button
-                    leftSection={<IconPlaylistAdd size={16} />}
-                    variant="subtle"
-                    onClick={() => queueTrack(track)}
-                  >
-                    Queue
-                  </Button>
+        <>
+          <Text className="mb-4 text-sm text-gray-400">
+            Found {data.data.length} tracks for "{debouncedSearchTerm}"
+          </Text>
+          <SimpleGrid
+            cols={{ base: 1, sm: 2, md: 3 }}
+            spacing="lg"
+            verticalSpacing="lg"
+          >
+            {data.data.map((track: Track) => (
+              <Card
+                key={track.id}
+                shadow="md"
+                padding="lg"
+                radius="md"
+                style={{ borderColor: "#3b3b4f" }}
+              >
+                <Card.Section>
+                  <Image
+                    src={track?.album?.cover_medium || "/api/placeholder/300/300"}
+                    height={180}
+                    alt={track?.title}
+                   />
+                </Card.Section>
+                <Group justify="apart" mt="md" mb="xs">
+                  <Text fw={600} lineClamp={1} className="text-white">
+                    {track?.title}
+                  </Text>
                 </Group>
-              </Group>
-            </Card>
-          ))}
-        </SimpleGrid>
+                <Text size="sm" c="dimmed" lineClamp={1} className="mb-4">
+                  {track?.artist?.name}
+                </Text>
+                <Group justify="space-between" mt="md">
+                  <Text size="sm" c="dimmed" className="bg-gray-700 px-2 py-1 rounded">
+                    {formatTime(track?.duration)}
+                  </Text>
+                  <Group>
+                    <Button
+                      leftSection={<IconPlayerPlay size={16} />}
+                      variant="filled"
+                      color="blue"
+                      onClick={() => playTrack(track)}
+                      >
+                      Play
+                    </Button>
+                    <Button
+                      leftSection={<IconPlaylistAdd size={16} />}
+                      variant="subtle"
+                      onClick={() => queueTrack(track)}
+                   >
+                      Queue
+                    </Button>
+                  </Group>
+                </Group>
+              </Card>
+            ))}
+          </SimpleGrid>
+        </>
       )}
     </Container>
   );
