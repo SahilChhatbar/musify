@@ -28,7 +28,7 @@ import { formatTime } from "../../../util/formatTime";
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [debouncedSearchTerm] = useDebouncedValue(searchTerm, 500);
-  
+
   const { playTrack, queueTrack, notification } = usePlayerContext();
 
   const { data, isLoading, error } = useQuery({
@@ -45,9 +45,11 @@ const Search = () => {
     <Container size="lg">
       {notification && (
         <Notification
-          title={notification.type === 'success' ? "Success" : "Error"}
-          icon={notification.type === 'success' ? <IconCheck size={18} /> : null}
-          color={notification.type === 'success' ? "green" : "red"}
+          title={notification.type === "success" ? "Success" : "Error"}
+          icon={
+            notification.type === "success" ? <IconCheck size={18} /> : null
+          }
+          color={notification.type === "success" ? "green" : "red"}
           onClose={() => {}}
           className="mb-4"
         >
@@ -81,61 +83,59 @@ const Search = () => {
           </Text>
         )}
       {!isLoading && !error && data?.data && data.data.length > 0 && (
-        <>
-          <SimpleGrid
-            cols={{ base: 1, sm: 2, md: 3 }}
-            spacing="md"
-            verticalSpacing="md"
-          >
-            {data .data.map((track: Track) => (
-              <Card
-                key={track.id}
-                shadow="sm"
-                padding="lg"
-                radius="md"
-                className="bg-gray-800 hover:bg-gray-700 transition-cs"
-              >
-                <Card.Section>
-                  <Image
-                    src={track?.album?.cover_medium || "/api/placeholder/300/300"}
-                    height={160}
-                    alt={track?.title}
-                  />
-                </Card.Section>
-                <Group justify="apart" mt="md" mb="xs">
-                  <Text fw={500} lineClamp={1}>
-                    {track?.title}
-                  </Text>
-                </Group>
-                <Text size="sm" c="dimmed" lineClamp={1}>
-                  {track?.artist?.name}
+        <SimpleGrid
+          cols={{ base: 1, sm: 2, md: 3 }}
+          spacing="md"
+          verticalSpacing="md"
+        >
+          {data.data.map((track: Track) => (
+            <Card
+              key={track.id}
+              shadow="sm"
+              padding="lg"
+              radius="md"
+              className="bg-gray-800 hover:bg-gray-700 transition-cs"
+            >
+              <Card.Section>
+                <Image
+                  src={track?.album?.cover_medium || "/api/placeholder/300/300"}
+                  height={160}
+                  alt={track?.title}
+                />
+              </Card.Section>
+              <Group justify="apart" mt="md" mb="xs">
+                <Text fw={500} lineClamp={1}>
+                  {track?.title}
                 </Text>
-                <Group justify="space-between" mt="md">
-                  <Text size="sm" c="dimmed">
-                    {formatTime(track?.duration)}
-                  </Text>
-                  <Group>
-                    <Button
-                      leftSection={<IconPlayerPlay size={16} />}
-                      variant="light"
-                      c="blue"
-                      onClick={() => playTrack(track)}
-                    >
-                      Play
-                    </Button>
-                    <Button
-                      leftSection={<IconPlaylistAdd size={16} />}
-                      variant="subtle"
-                      onClick={() => queueTrack(track)}
-                    >
-                      Queue
-                    </Button>
-                  </Group>
+              </Group>
+              <Text size="sm" c="dimmed" lineClamp={1}>
+                {track?.artist?.name}
+              </Text>
+              <Group justify="space-between" mt="md">
+                <Text size="sm" c="dimmed">
+                  {formatTime(track?.duration)}
+                </Text>
+                <Group>
+                  <Button
+                    leftSection={<IconPlayerPlay size={16} />}
+                    variant="light"
+                    c="blue"
+                    onClick={() => playTrack(track)}
+                  >
+                    Play
+                  </Button>
+                  <Button
+                    leftSection={<IconPlaylistAdd size={16} />}
+                    variant="subtle"
+                    onClick={() => queueTrack(track)}
+                  >
+                    Queue
+                  </Button>
                 </Group>
-              </Card>
-            ))}
-          </SimpleGrid>
-        </>
+              </Group>
+            </Card>
+          ))}
+        </SimpleGrid>
       )}
     </Container>
   );
