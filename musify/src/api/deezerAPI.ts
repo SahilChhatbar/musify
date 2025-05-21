@@ -100,7 +100,7 @@ export const playTrack = (track: Track): void => {
     playerState.isPlaying = false;
   });
   
-  savePlayerState(); // Save state after updating
+  savePlayerState(); 
 };
 
 export const queueTrack = (track: Track): QueueItem => {
@@ -109,26 +109,22 @@ export const queueTrack = (track: Track): QueueItem => {
     queuedAt: new Date()
   };
   
-  // Only play the track if there's no current track playing
   if (!playerState.currentTrack) {
     playTrack(track);
   } else {
-    // Add to queue if there's already a track playing
     playerState.queue.push(queueItem);
   }  
   
-  savePlayerState(); // Save state after updating queue
+  savePlayerState(); 
   return queueItem;
 };
 
-// New function: Force add to queue without playing it
 export const forceQueueTrack = (track: Track): QueueItem => {
   const queueItem: QueueItem = {
     track,
     queuedAt: new Date()
   };
   
-  // Always add to queue regardless of current playback state
   playerState.queue.push(queueItem);
   savePlayerState();
   
@@ -152,7 +148,7 @@ export const togglePlay = (): boolean => {
     playerState.isPlaying = true;
   }
   
-  savePlayerState(); // Save state after toggling play
+  savePlayerState();
   return playerState.isPlaying;
 };
 
@@ -167,7 +163,7 @@ export const skipForward = (seconds: number = 5): number => {
   audio.currentTime = newTime;
   playerState.currentTime = newTime;
   
-  savePlayerState(); // Save state after updating time
+  savePlayerState(); 
   return newTime;
 };
 
@@ -182,13 +178,12 @@ export const skipBackward = (seconds: number = 5): number => {
   audio.currentTime = newTime;
   playerState.currentTime = newTime;
   
-  savePlayerState(); // Save state after updating time
+  savePlayerState(); 
   return newTime;
 };
 
 export const playNextTrack = (): Track | null => {
   if (playerState.queue.length === 0) {
-    // No more tracks in queue
     playerState.currentTrack = null;
     playerState.isPlaying = false;
     
@@ -196,16 +191,15 @@ export const playNextTrack = (): Track | null => {
     audio.pause();
     audio.currentTime = 0;
     
-    savePlayerState(); // Save state after clearing current track
+    savePlayerState(); 
     return null;
   }
   
-  // Get the next track from the queue
   const nextItem = playerState.queue.shift();
   
   if (nextItem) {
     playTrack(nextItem.track);
-    savePlayerState(); // Save state after updating queue
+    savePlayerState(); 
     return nextItem.track;
   }
   
@@ -218,13 +212,13 @@ export const playPreviousTrack = (): void => {
   if (audio.currentTime > 3) {
     audio.currentTime = 0;
     playerState.currentTime = 0;
-    savePlayerState(); // Save state after updating time
+    savePlayerState(); 
     return;
   }
   
   audio.currentTime = 0;
   playerState.currentTime = 0;
-  savePlayerState(); // Save state after updating time
+  savePlayerState(); 
 };
 
 export const setVolume = (volume: number): number => {
@@ -233,7 +227,7 @@ export const setVolume = (volume: number): number => {
   audio.volume = normalizedVolume;
   playerState.volume = normalizedVolume;
   
-  savePlayerState(); // Save state after updating volume
+  savePlayerState(); 
   return normalizedVolume;
 };
 

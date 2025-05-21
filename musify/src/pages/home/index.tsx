@@ -13,7 +13,7 @@ const HomePage = () => {
   };
 
   return (
-    <Stack gap="xl">
+    <Stack gap="xl" mb={10}>
       <Group justify="center" className="mt-4">
         <Button 
           variant="filled" 

@@ -23,6 +23,7 @@ import {
 } from "@tabler/icons-react";
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
+import { useNavigate } from "react-router";
 
 const Queue = () => {
   const {
@@ -35,9 +36,11 @@ const Queue = () => {
     clearQueue,
   } = usePlayerContext();
 
+  const navigate = useNavigate();
+
   const calculateProgress = () => {
     if (!playerState?.currentTrack) return 0;
-    const duration = playerState.currentTrack.duration || 30;
+    const duration = Math.min(30, playerState.currentTrack.duration || 30);
     return (playerState.currentTime / duration) * 100;
   };
 
@@ -50,11 +53,11 @@ const Queue = () => {
           </Alert>
         )}
         <Group justify="space-between">
-          <Title order={2} >Your Queue</Title>
+          <Title order={2}>Your Queue</Title>
           {playerState?.queue?.length > 0 && (
-            <Button 
-              variant="subtle" 
-              color="red" 
+            <Button
+              variant="subtle"
+              color="red"
               onClick={clearQueue}
               leftSection={<IconPlaylistX size={16} />}
             >
@@ -65,10 +68,7 @@ const Queue = () => {
         {playerState?.currentTrack && (
           <Box>
             <Title order={4}>Now Playing</Title>
-            <Card 
-              padding="md" 
-              radius="md" 
-            >
+            <Card padding="md" radius="md">
               <Stack>
                 <Group justify="space-between">
                   <Group>
@@ -79,7 +79,7 @@ const Queue = () => {
                       title={playerState.isPlaying ? "Pause" : "Play"}
                       radius="xl"
                       size="sm"
-                      >
+                    >
                       {playerState.isPlaying ? (
                         <IconPlayerPause size={16} />
                       ) : (
@@ -87,7 +87,7 @@ const Queue = () => {
                       )}
                     </Button>
                     <Stack gap="xs">
-                      <Text fw={600} >{playerState?.currentTrack?.title}</Text>
+                      <Text fw={600}>{playerState?.currentTrack?.title}</Text>
                       <Text size="sm" c="dimmed">
                         {playerState?.currentTrack?.artist?.name}
                       </Text>
@@ -98,30 +98,32 @@ const Queue = () => {
                       variant="subtle"
                       onClick={playPreviousTrack}
                       title="Previous"
-                      >
+                    >
                       <IconPlayerSkipBack size={16} />
                     </Button>
                     <Button
                       variant="subtle"
                       onClick={playNextTrack}
                       title="Next"
-                     >
+                    >
                       <IconPlayerSkipForward size={16} />
                     </Button>
                   </Group>
                 </Group>
-                <Group className="pt-2">
+                <Group className="pt-2" grow>
                   <Text size="xs" c="dimmed" w={40} ta="right">
                     {formatTime(playerState?.currentTime)}
                   </Text>
                   <Progress
                     value={calculateProgress()}
-                    size="sm"
+                    size="md"
                     color="blue"
                     radius="xl"
                   />
                   <Text size="xs" c="dimmed" w={40}>
-                    {formatTime(playerState?.currentTrack?.duration)}
+                    {formatTime(
+                      Math.min(30, playerState?.currentTrack?.duration || 30)
+                    )}
                   </Text>
                 </Group>
               </Stack>
@@ -131,7 +133,9 @@ const Queue = () => {
         {playerState?.queue?.length > 0 ? (
           <Box mb={10}>
             <Divider />
-            <Title order={4} mt={10}>Next Up</Title>
+            <Title order={4} mt={10}>
+              Next Up
+            </Title>
             <Stack gap="md">
               {playerState.queue.map((item, index) => (
                 <Card
@@ -139,16 +143,12 @@ const Queue = () => {
                   padding="md"
                   radius="md"
                   shadow="md"
-                  >
+                >
                   <Group justify="space-between">
                     <Group>
-                      <Text 
-                        size="sm" 
-                       >
-                        {index + 1}
-                      </Text>
+                      <Text size="sm">{index + 1}</Text>
                       <Stack gap="xs">
-                        <Text fw={500} >{item.track.title}</Text>
+                        <Text fw={500}>{item.track.title}</Text>
                         <Text size="sm" c="dimmed">
                           {item?.track?.artist?.name}
                         </Text>
@@ -162,10 +162,9 @@ const Queue = () => {
                         variant="light"
                         color="blue"
                         onClick={() => playTrack(item?.track)}
-                        title="Play this track"
                         radius="xl"
                         size="sm"
-                       >
+                      >
                         <IconPlayerPlay size={16} />
                       </Button>
                     </Group>
@@ -178,14 +177,16 @@ const Queue = () => {
           <Center mb={10}>
             <Stack align="center">
               <IconMusic size={48} className="text-gray-600 mb-2" />
-              <Text c="dimmed" fw={500}>Your queue is empty</Text>
+              <Text c="dimmed" fw={500}>
+                Your queue is empty
+              </Text>
               <Text size="sm" c="dimmed">
                 Search for tracks and add them to your queue
               </Text>
               <Button
                 variant="light"
                 color="blue"
-                onClick={() => window.location.href = "/search"}
+                onClick={() => navigate("/search")}
               >
                 Browse Music
               </Button>

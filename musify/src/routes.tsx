@@ -21,7 +21,6 @@ export const router = createBrowserRouter([
         path: "/queue",
         element: <QueueComponent />,
       },
-      // Catch-all route - redirect to home
       {
         path: "*",
         element: <Navigate to="/" replace />,

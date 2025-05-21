@@ -1,7 +1,6 @@
 import { Track, QueueItem, PlayerState } from '../types/types';
 import { listeners } from '../constants';
 
-
 export type AudioServiceEvent = 
   | 'play'
   | 'pause'
@@ -10,7 +9,6 @@ export type AudioServiceEvent =
   | 'queueUpdate'
   | 'volumeChange'
   | 'end';
-
 
 const defaultPlayerState: PlayerState = {
   currentTrack: null,
@@ -171,7 +169,10 @@ export const skipForward = (seconds: number = 5): number => {
     return 0;
   }
   
-  const newTime = Math.min(audio.duration, audio.currentTime + seconds);
+  const newTime = seconds < 0 
+    ? Math.max(0, audio.currentTime + seconds) 
+    : Math.min(audio.duration, audio.currentTime + seconds);
+    
   audio.currentTime = newTime;
   playerState.currentTime = newTime;
   savePlayerState(playerState);
@@ -189,6 +190,23 @@ export const skipBackward = (seconds: number = 5): number => {
   }
   
   const newTime = Math.max(0, audio.currentTime - seconds);
+  audio.currentTime = newTime;
+  playerState.currentTime = newTime;
+  savePlayerState(playerState);
+  notifyListeners('timeUpdate');
+  
+  return newTime;
+};
+
+export const seekTo = (position: number): number => {
+  const audio = initAudio();
+  const playerState = getPlayerState();
+  
+  if (!playerState.currentTrack) {
+    return 0;
+  }
+  
+  const newTime = Math.max(0, Math.min(audio.duration, position));
   audio.currentTime = newTime;
   playerState.currentTime = newTime;
   savePlayerState(playerState);
@@ -272,6 +290,7 @@ export default {
   togglePlay,
   skipForward,
   skipBackward,
+  seekTo,
   playNextTrack,
   playPreviousTrack,
   setVolume,

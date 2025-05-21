@@ -38,10 +38,18 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
   } = usePlayerContext();
 
   const [isMuted, setIsMuted] = useState(false);
+  const [sliderValue, setSliderValue] = useState(0);
+  const [isDragging, _setIsDragging] = useState(false);
 
   const duration = playerState.currentTrack?.duration
     ? Math.min(30, playerState.currentTrack.duration)
     : 30;
+
+  useEffect(() => {
+    if (!isDragging && playerState?.currentTrack) {
+      setSliderValue((playerState.currentTime / duration) * 100);
+    }
+  }, [playerState.currentTime, duration, isDragging]);
 
   const handleVolumeChange = (value: number) => {
     setVolume(value / 100);
@@ -58,19 +66,20 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
     }
   };
 
+  const handleTimeChange = (value: number) => {
+    setSliderValue(value);
+    if (playerState?.currentTrack) {
+      const timePosition = (value / 100) * duration;
+      skipForward(timePosition - playerState.currentTime);
+    }
+  };
+
   useEffect(() => {
     setIsMuted(playerState.volume === 0);
   }, [playerState.volume]);
 
   return (
-    <Paper 
-      p="md" 
-      radius="md" 
-      w={1110}
-      mx="auto"
-      bg="dark"
-      c="white"
-    >
+    <Paper p="md" radius="md" w={1110} mx="auto" bg="dark" c="white">
       <Stack gap="md">
         <Group justify="apart" className="pb-1">
           <Group>
@@ -85,7 +94,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
                   height={60}
                   radius="md"
                   alt={playerState?.currentTrack?.title}
-                 />
+                />
                 <Stack gap="xs">
                   <Text size="sm" fw={600} className="truncate max-w-xs">
                     {playerState?.currentTrack?.title}
@@ -98,7 +107,9 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             ) : (
               <Group>
                 <Stack gap="xs">
-                  <Text size="sm" fw={500}>No track playing</Text>
+                  <Text size="sm" fw={500}>
+                    No track playing
+                  </Text>
                   <Text size="xs" c="dimmed">
                     Select a track to play
                   </Text>
@@ -108,7 +119,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
           </Group>
           {playerState.queue.length > 0 && (
             <Group>
-              <IconPlaylist size={16}  />
+              <IconPlaylist size={16} />
               <Badge size="sm" radius="sm" color="blue" variant="light">
                 {playerState?.queue?.length} in queue
               </Badge>
@@ -120,9 +131,16 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             {formatTime(playerState?.currentTime)}
           </Text>
           <Slider
-            value={(playerState?.currentTime / duration) * 100}
+            value={sliderValue}
+            onChange={setSliderValue}
+            onChangeEnd={handleTimeChange}
             className="flex-1"
             color="blue"
+            size="md"
+            radius="xl"
+            min={0}
+            max={duration}
+            step={1}
           />
           <Text size="xs" c="dimmed" w={40}>
             {formatTime(duration)}
@@ -134,7 +152,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             variant="transparent"
             onClick={playPreviousTrack}
             title="Previous track"
-            >
+          >
             <IconPlayerTrackPrev size={22} />
           </ActionIcon>
           <ActionIcon
@@ -142,7 +160,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             variant="transparent"
             onClick={() => skipBackward(5)}
             title="Back 5 seconds"
-           >
+          >
             <IconPlayerSkipBack size={22} />
           </ActionIcon>
           <ActionIcon
@@ -162,7 +180,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             variant="transparent"
             onClick={() => skipForward(5)}
             title="Forward 5 seconds"
-            >
+          >
             <IconPlayerSkipForward size={22} />
           </ActionIcon>
           <ActionIcon
@@ -170,22 +188,28 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             variant="transparent"
             onClick={playNextTrack}
             title="Next track"
-            >
+          >
             <IconPlayerTrackNext size={22} />
           </ActionIcon>
         </Group>
         <Group justify="center" className="pt-1">
-          <Group gap="xs">
+          <Group gap="xs" align="center">
             <ActionIcon
               onClick={toggleMute}
               title={isMuted ? "Unmute" : "Mute"}
-             >
+            >
               {isMuted ? <IconVolumeOff size={18} /> : <IconVolume size={18} />}
             </ActionIcon>
             <Slider
               value={playerState.volume * 100}
               onChange={(value) => handleVolumeChange(value)}
               color="blue"
+              size="sm"
+              radius="xl"
+              w={80}
+              min={0}
+              max={100}
+              step={1}
             />
           </Group>
           <Button
@@ -194,7 +218,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             leftSection={<IconSearch size={16} />}
             onClick={onSearch}
             title="Search for music"
-           >
+          >
             Search
           </Button>
           <Button
@@ -202,7 +226,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             variant="subtle"
             leftSection={<IconPlaylist size={16} />}
             onClick={() => (window.location.href = "/queue")}
-            >
+          >
             Queue ({playerState.queue.length})
           </Button>
         </Group>

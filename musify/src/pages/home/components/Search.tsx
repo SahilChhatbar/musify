@@ -11,7 +11,7 @@ import {
   Loader,
   Center,
   Notification,
-  Title,
+  Title
 } from "@mantine/core";
 import {
   IconSearch,
@@ -52,11 +52,13 @@ const Search = () => {
           }
           color={notification.type === "success" ? "green" : "red"}
           onClose={() => {}}
-           >
+        >
           {notification.message}
         </Notification>
       )}
-      <Title order={2} className="mb-4 text-white">Search Music</Title>
+      <Title order={2} className="mb-4 text-white">
+        Search Music
+      </Title>
       <TextInput
         placeholder="Search for tracks, artists, or albums"
         rightSection={<IconSearch size={18} className="text-gray-400" />}
@@ -66,10 +68,9 @@ const Search = () => {
         radius="md"
         styles={{
           input: {
-            backgroundColor: "rgba(30, 31, 48, 0.6)",
-            borderColor: "#3b3b4f",
-            color: "white"
-          }
+            backgroundColor: "#2D2D2D",
+            color: "white",
+          },
         }}
       />
       {isLoading && debouncedSearchTerm.length > 1 && (
@@ -112,10 +113,12 @@ const Search = () => {
               >
                 <Card.Section>
                   <Image
-                    src={track?.album?.cover_medium || "/api/placeholder/300/300"}
+                    src={
+                      track?.album?.cover_medium || "/api/placeholder/300/300"
+                    }
                     height={180}
                     alt={track?.title}
-                   />
+                  />
                 </Card.Section>
                 <Group justify="apart" mt="md" mb="xs">
                   <Text fw={600} lineClamp={1} className="text-white">
@@ -126,7 +129,11 @@ const Search = () => {
                   {track?.artist?.name}
                 </Text>
                 <Group justify="space-between" mt="md">
-                  <Text size="sm" c="dimmed" className="bg-gray-700 px-2 py-1 rounded">
+                  <Text
+                    size="sm"
+                    c="dimmed"
+                    className="bg-gray-700 px-2 py-1 rounded"
+                  >
                     {formatTime(track?.duration)}
                   </Text>
                   <Group>
@@ -135,14 +142,14 @@ const Search = () => {
                       variant="filled"
                       color="blue"
                       onClick={() => playTrack(track)}
-                      >
+                    >
                       Play
                     </Button>
                     <Button
                       leftSection={<IconPlaylistAdd size={16} />}
                       variant="subtle"
                       onClick={() => queueTrack(track)}
-                   >
+                    >
                       Queue
                     </Button>
                   </Group>
