@@ -87,7 +87,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               <>
                 <Image
                   src={
-                    playerState?.currentTrack?.album?.cover_small ||
+                    playerState?.currentTrack?.album?.cover_medium ||
                     "/api/placeholder/60/60"
                   }
                   width={60}

@@ -118,7 +118,6 @@ export const queueTrack = (track: Track): QueueItem => {
     savePlayerState(playerState);
     notifyListeners('queueUpdate');
   }  
-  
   return queueItem;
 };
 
