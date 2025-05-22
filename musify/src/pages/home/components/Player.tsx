@@ -25,8 +25,10 @@ import {
 import { MusicPlayerProps } from "../../../types/types";
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
+import { useNavigate } from "react-router";
 
 const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
+  const navigate = useNavigate();
   const {
     playerState,
     togglePlay,
@@ -39,7 +41,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
 
   const [isMuted, setIsMuted] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
-  const [isDragging, _setIsDragging] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const duration = playerState.currentTrack?.duration
     ? Math.min(30, playerState.currentTrack.duration)
@@ -47,7 +49,8 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
 
   useEffect(() => {
     if (!isDragging && playerState?.currentTrack) {
-      setSliderValue((playerState.currentTime / duration) * 100);
+      const percentage = (playerState.currentTime / duration) * 100;
+      setSliderValue(percentage);
     }
   }, [playerState.currentTime, duration, isDragging]);
 
@@ -67,10 +70,9 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
   };
 
   const handleTimeChange = (value: number) => {
-    setSliderValue(value);
+    const newTime = (value / 100) * duration;
     if (playerState?.currentTrack) {
-      const timePosition = (value / 100) * duration;
-      skipForward(timePosition - playerState.currentTime);
+      skipForward(newTime - playerState.currentTime);
     }
   };
 
@@ -88,10 +90,10 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
                 <Image
                   src={
                     playerState?.currentTrack?.album?.cover_medium ||
-                    "/api/placeholder/60/60"
+                    "/api/placeholder/60/160"
                   }
                   width={60}
-                  height={60}
+                  height={120}
                   radius="md"
                   alt={playerState?.currentTrack?.title}
                 />
@@ -126,21 +128,29 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             </Group>
           )}
         </Group>
-        <Group justify="apart" gap="xs">
+        <Group justify="apart" gap="xs" w="100%">
           <Text size="xs" c="dimmed" w={40} ta="right">
             {formatTime(playerState?.currentTime)}
           </Text>
           <Slider
             value={sliderValue}
-            onChange={setSliderValue}
-            onChangeEnd={handleTimeChange}
-            className="flex-1"
+            onChange={(value) => {
+              setIsDragging(true);
+              setSliderValue(value);
+            }}
+            onChangeEnd={(value) => {
+              setIsDragging(false);
+              handleTimeChange(value);
+            }}
+            w="100%"
+            maw={850}
             color="blue"
-            size="md"
+            size="sm"
             radius="xl"
             min={0}
-            max={duration}
-            step={1}
+            mx="auto"
+            max={100}
+            step={0.1}
           />
           <Text size="xs" c="dimmed" w={40}>
             {formatTime(duration)}
@@ -225,7 +235,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             size="xs"
             variant="subtle"
             leftSection={<IconPlaylist size={16} />}
-            onClick={() => (window.location.href = "/queue")}
+            onClick={() => navigate("/queue")}
           >
             Queue ({playerState.queue.length})
           </Button>

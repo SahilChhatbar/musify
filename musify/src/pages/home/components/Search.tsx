@@ -11,7 +11,7 @@ import {
   Loader,
   Center,
   Notification,
-  Title
+  Title,
 } from "@mantine/core";
 import {
   IconSearch,
@@ -66,6 +66,7 @@ const Search = () => {
         onChange={handleSearchChange}
         size="lg"
         radius="md"
+        mb={20}
         styles={{
           input: {
             backgroundColor: "#2D2D2D",
@@ -95,9 +96,6 @@ const Search = () => {
         )}
       {!isLoading && !error && data?.data && data.data.length > 0 && (
         <>
-          <Text className="mb-4 text-sm text-gray-400">
-            Found {data.data.length} tracks for "{debouncedSearchTerm}"
-          </Text>
           <SimpleGrid
             cols={{ base: 1, sm: 2, md: 3 }}
             spacing="lg"
@@ -113,9 +111,7 @@ const Search = () => {
               >
                 <Card.Section>
                   <Image
-                    src={
-                      track?.album?.cover_medium || "/api/placeholder/300/300"
-                    }
+                    src={track?.album?.cover_big || "/api/placeholder/300/300"}
                     height={180}
                     alt={track?.title}
                   />
