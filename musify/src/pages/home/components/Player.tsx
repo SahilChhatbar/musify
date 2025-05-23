@@ -76,12 +76,50 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
     }
   };
 
+  const onKeyDown = (e: React.KeyboardEvent) => {
+    switch (e.key) {
+      case ' ':
+        e.preventDefault();
+        togglePlay();
+        break;
+      case 'ArrowLeft':
+        e.preventDefault();
+        e.shiftKey ? playPreviousTrack() : skipBackward(5);
+        break;
+      case 'ArrowRight':
+        e.preventDefault();
+        e.shiftKey ? playNextTrack() : skipForward(5);
+        break;
+      case 'ArrowUp':
+        e.preventDefault();
+        setVolume(Math.min(1, playerState.volume + 0.1));
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        setVolume(Math.max(0, playerState.volume - 0.1));
+        break;
+      case 'm':
+        e.preventDefault();
+        toggleMute();
+        break;
+    }
+  };
+
   useEffect(() => {
     setIsMuted(playerState.volume === 0);
   }, [playerState.volume]);
 
   return (
-    <Paper p="md" radius="md" w={1110} mx="auto" bg="dark" c="white">
+    <Paper 
+      p="md" 
+      radius="md" 
+      w={1110} 
+      mx="auto" 
+      bg="dark" 
+      c="white"
+      tabIndex={0}
+      onKeyDown={onKeyDown}
+    >
       <Stack gap="md">
         <Group justify="apart" className="pb-1">
           <Group>
@@ -161,7 +199,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             size="md"
             variant="transparent"
             onClick={playPreviousTrack}
-            title="Previous track"
+            title="Previous track (Shift+←)"
           >
             <IconPlayerTrackPrev size={22} />
           </ActionIcon>
@@ -169,7 +207,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             size="md"
             variant="transparent"
             onClick={() => skipBackward(5)}
-            title="Back 5 seconds"
+            title="Back 5 seconds (←)"
           >
             <IconPlayerSkipBack size={22} />
           </ActionIcon>
@@ -177,7 +215,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             size="lg"
             radius="xl"
             onClick={togglePlay}
-            title={playerState?.isPlaying ? "Pause" : "Play"}
+            title={playerState?.isPlaying ? "Pause (Space)" : "Play (Space)"}
           >
             {playerState?.isPlaying ? (
               <IconPlayerPause size={26} className="text-white" />
@@ -189,7 +227,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             size="md"
             variant="transparent"
             onClick={() => skipForward(5)}
-            title="Forward 5 seconds"
+            title="Forward 5 seconds (→)"
           >
             <IconPlayerSkipForward size={22} />
           </ActionIcon>
@@ -197,7 +235,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             size="md"
             variant="transparent"
             onClick={playNextTrack}
-            title="Next track"
+            title="Next track (Shift+→)"
           >
             <IconPlayerTrackNext size={22} />
           </ActionIcon>
@@ -206,7 +244,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
           <Group gap="xs" align="center">
             <ActionIcon
               onClick={toggleMute}
-              title={isMuted ? "Unmute" : "Mute"}
+              title={isMuted ? "Unmute (M)" : "Mute (M)"}
             >
               {isMuted ? <IconVolumeOff size={18} /> : <IconVolume size={18} />}
             </ActionIcon>
@@ -220,6 +258,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               min={0}
               max={100}
               step={1}
+              title="Volume (↑↓)"
             />
           </Group>
           <Button
@@ -236,6 +275,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             variant="subtle"
             leftSection={<IconPlaylist size={16} />}
             onClick={() => navigate("/queue")}
+            title="Queue"
           >
             Queue ({playerState.queue.length})
           </Button>
