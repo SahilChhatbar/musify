@@ -2,7 +2,7 @@ export interface Track {
   id: number;
   title: string;
   duration: number;
-  preview: string; 
+  preview: string;
   artist: {
     id: number;
     name: string;
@@ -57,9 +57,8 @@ export interface PlayerContextProps {
   setVolume: (volume: number) => number;
   clearQueue: () => void;
   notification: {
-    type: 'success' | 'error';
+    type: "success" | "error";
     message: string;
   } | null;
-  showNotification: (type: 'success' | 'error', message: string) => void;
+  showNotification: (type: "success" | "error", message: string) => void;
 }
-

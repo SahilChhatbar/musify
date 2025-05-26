@@ -136,7 +136,7 @@ const Queue = () => {
             <Title order={4} mt={10}>
               Next Up
             </Title>
-            <Stack gap="md">
+            <Stack gap="md" pb={150}>
               {playerState.queue.map((item, index) => (
                 <Card
                   key={`${item?.track?.id}-${index}`}

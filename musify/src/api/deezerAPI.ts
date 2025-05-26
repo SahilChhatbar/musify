@@ -1,5 +1,5 @@
 import axios, { AxiosResponse } from 'axios';
-import { Track, SearchResult, QueueItem, PlayerState } from '../types/types';
+import { Track, SearchResult, QueueItem, PlayerState } from '../types';
 
 const deezerApi = axios.create({
   baseURL: 'https://deezerdevs-deezer.p.rapidapi.com',
@@ -240,6 +240,16 @@ export const clearQueue = (): void => {
   savePlayerState(); 
 };
 
+export const getLyrics = async (artist: string, title: string): Promise<string> => {
+  try {
+    const response = await axios.get(`https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`);
+    return response.data.lyrics;
+  } catch (error) {
+    console.error('Error fetching lyrics:', error);
+    return 'Lyrics not available';
+  }
+};
+
 export default {
   searchTracks,
   getTrack,
@@ -253,5 +263,6 @@ export default {
   playPreviousTrack,
   setVolume,
   getPlayerState,
-  clearQueue
+  clearQueue,
+  getLyrics
 };

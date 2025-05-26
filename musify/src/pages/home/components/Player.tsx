@@ -8,7 +8,6 @@ import {
   Slider,
   Image,
   Button,
-  Badge,
 } from "@mantine/core";
 import {
   IconPlayerPlay,
@@ -22,10 +21,12 @@ import {
   IconPlaylist,
   IconSearch,
 } from "@tabler/icons-react";
-import { MusicPlayerProps } from "../../../types/types";
+import { MusicPlayerProps } from "../../../types";
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
 import { useNavigate } from "react-router";
+import { Tooltip } from "@mantine/core";
+import { getLyrics } from "../../../api/deezerAPI";
 
 const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
   const navigate = useNavigate();
@@ -42,6 +43,9 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
+
+  const [lyrics, setLyrics] = useState<string>("Loading lyrics...");
+  const [showLyrics, setShowLyrics] = useState(false);
 
   const duration = playerState.currentTrack?.duration
     ? Math.min(30, playerState.currentTrack.duration)
@@ -76,211 +80,200 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
     }
   };
 
-  const onKeyDown = (e: React.KeyboardEvent) => {
-    switch (e.key) {
-      case ' ':
-        e.preventDefault();
-        togglePlay();
-        break;
-      case 'ArrowLeft':
-        e.preventDefault();
-        e.shiftKey ? playPreviousTrack() : skipBackward(5);
-        break;
-      case 'ArrowRight':
-        e.preventDefault();
-        e.shiftKey ? playNextTrack() : skipForward(5);
-        break;
-      case 'ArrowUp':
-        e.preventDefault();
-        setVolume(Math.min(1, playerState.volume + 0.1));
-        break;
-      case 'ArrowDown':
-        e.preventDefault();
-        setVolume(Math.max(0, playerState.volume - 0.1));
-        break;
-      case 'm':
-        e.preventDefault();
-        toggleMute();
-        break;
-    }
-  };
-
   useEffect(() => {
     setIsMuted(playerState.volume === 0);
   }, [playerState.volume]);
 
+  useEffect(() => {
+    const fetchLyrics = async () => {
+      if (playerState?.currentTrack) {
+        const newLyrics = await getLyrics(
+          playerState.currentTrack.artist.name,
+          playerState.currentTrack.title
+        );
+        setLyrics(newLyrics);
+      }
+    };
+
+    fetchLyrics();
+  }, [playerState?.currentTrack]);
+
   return (
-    <Paper 
-      p="md" 
-      radius="md" 
-      w={1110} 
-      mx="auto" 
-      bg="dark" 
-      c="white"
-      tabIndex={0}
-      onKeyDown={onKeyDown}
-    >
-      <Stack gap="md">
-        <Group justify="apart" className="pb-1">
-          <Group>
-            {playerState?.currentTrack ? (
-              <>
-                <Image
-                  src={
-                    playerState?.currentTrack?.album?.cover_medium ||
-                    "/api/placeholder/60/160"
-                  }
-                  width={60}
-                  height={120}
-                  radius="md"
-                  alt={playerState?.currentTrack?.title}
-                />
-                <Stack gap="xs">
-                  <Text size="sm" fw={600} className="truncate max-w-xs">
-                    {playerState?.currentTrack?.title}
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    {playerState?.currentTrack?.artist?.name}
-                  </Text>
-                </Stack>
-              </>
-            ) : (
-              <Group>
-                <Stack gap="xs">
-                  <Text size="sm" fw={500}>
-                    No track playing
-                  </Text>
-                  <Text size="xs" c="dimmed">
-                    Select a track to play
-                  </Text>
-                </Stack>
-              </Group>
-            )}
-          </Group>
-          {playerState.queue.length > 0 && (
+    <Paper p="md" radius="md" w={1110} mx="auto" bg="dark" c="white">
+      <Group justify="between" align="start">
+        <Group p={0}>
+          {playerState?.currentTrack ? (
+            <>
+              <Image
+                src={
+                  playerState?.currentTrack?.album?.cover_medium ||
+                  "/api/placeholder/60/100"
+                }
+                width={20}
+                height={100}
+                radius="md"
+                alt={playerState?.currentTrack?.title}
+              />
+              <Stack gap="xs">
+                <Text size="sm" fw={600} className="truncate max-w-xs">
+                  {playerState?.currentTrack?.title}
+                </Text>
+                <Text size="xs" c="dimmed">
+                  {playerState?.currentTrack?.artist?.name}
+                </Text>
+              </Stack>
+            </>
+          ) : (
             <Group>
-              <IconPlaylist size={16} />
-              <Badge size="sm" radius="sm" color="blue" variant="light">
-                {playerState?.queue?.length} in queue
-              </Badge>
+              <Stack gap="xs">
+                <Text size="sm" fw={500}>
+                  No track playing
+                </Text>
+                <Text size="xs" c="dimmed">
+                  Select a track to play
+                </Text>
+              </Stack>
             </Group>
           )}
         </Group>
-        <Group justify="apart" gap="xs" w="100%">
-          <Text size="xs" c="dimmed" w={40} ta="right">
-            {formatTime(playerState?.currentTime)}
-          </Text>
-          <Slider
-            value={sliderValue}
-            onChange={(value) => {
-              setIsDragging(true);
-              setSliderValue(value);
-            }}
-            onChangeEnd={(value) => {
-              setIsDragging(false);
-              handleTimeChange(value);
-            }}
-            w="100%"
-            maw={850}
-            color="blue"
-            size="sm"
-            radius="xl"
-            min={0}
-            mx="auto"
-            max={100}
-            step={0.1}
-          />
-          <Text size="xs" c="dimmed" w={40}>
-            {formatTime(duration)}
-          </Text>
-        </Group>
-        <Group justify="center" gap="md">
-          <ActionIcon
-            size="md"
-            variant="transparent"
-            onClick={playPreviousTrack}
-            title="Previous track (Shift+←)"
-          >
-            <IconPlayerTrackPrev size={22} />
-          </ActionIcon>
-          <ActionIcon
-            size="md"
-            variant="transparent"
-            onClick={() => skipBackward(5)}
-            title="Back 5 seconds (←)"
-          >
-            <IconPlayerSkipBack size={22} />
-          </ActionIcon>
-          <ActionIcon
-            size="lg"
-            radius="xl"
-            onClick={togglePlay}
-            title={playerState?.isPlaying ? "Pause (Space)" : "Play (Space)"}
-          >
-            {playerState?.isPlaying ? (
-              <IconPlayerPause size={26} className="text-white" />
-            ) : (
-              <IconPlayerPlay size={26} className="text-white" />
-            )}
-          </ActionIcon>
-          <ActionIcon
-            size="md"
-            variant="transparent"
-            onClick={() => skipForward(5)}
-            title="Forward 5 seconds (→)"
-          >
-            <IconPlayerSkipForward size={22} />
-          </ActionIcon>
-          <ActionIcon
-            size="md"
-            variant="transparent"
-            onClick={playNextTrack}
-            title="Next track (Shift+→)"
-          >
-            <IconPlayerTrackNext size={22} />
-          </ActionIcon>
-        </Group>
-        <Group justify="center" className="pt-1">
-          <Group gap="xs" align="center">
-            <ActionIcon
-              onClick={toggleMute}
-              title={isMuted ? "Unmute (M)" : "Mute (M)"}
-            >
-              {isMuted ? <IconVolumeOff size={18} /> : <IconVolume size={18} />}
-            </ActionIcon>
+        <Stack gap="md" flex={1} my="auto">
+          <Group justify="apart" gap="xs" w="100%">
+            <Text size="xs" c="dimmed" w={40} ta="right">
+              {formatTime(playerState?.currentTime)}
+            </Text>
             <Slider
-              value={playerState.volume * 100}
-              onChange={(value) => handleVolumeChange(value)}
+              value={sliderValue}
+              label={formatTime(playerState?.currentTime)}
+              onChange={(value) => {
+                setIsDragging(true);
+                setSliderValue(value);
+              }}
+              onChangeEnd={(value) => {
+                setIsDragging(false);
+                handleTimeChange(value);
+              }}
+              w="85%"
               color="blue"
               size="sm"
               radius="xl"
-              w={80}
               min={0}
+              mx="auto"
               max={100}
-              step={1}
-              title="Volume (↑↓)"
             />
+            <Text size="xs" c="dimmed" w={40}>
+              {formatTime(duration)}
+            </Text>
           </Group>
-          <Button
-            size="xs"
-            variant="subtle"
-            leftSection={<IconSearch size={16} />}
-            onClick={onSearch}
-            title="Search for music"
-          >
-            Search
-          </Button>
-          <Button
-            size="xs"
-            variant="subtle"
-            leftSection={<IconPlaylist size={16} />}
-            onClick={() => navigate("/queue")}
-            title="Queue"
-          >
-            Queue ({playerState.queue.length})
-          </Button>
-        </Group>
-      </Stack>
+          <Group justify="center" gap="md">
+            <ActionIcon
+              size="md"
+              variant="transparent"
+              onClick={playPreviousTrack}
+              title="Previous track (Shift+←)"
+            >
+              <IconPlayerTrackPrev size={22} />
+            </ActionIcon>
+            <ActionIcon
+              size="md"
+              variant="transparent"
+              onClick={() => skipBackward(5)}
+              title="Back 5 seconds (←)"
+            >
+              <IconPlayerSkipBack size={22} />
+            </ActionIcon>
+            <ActionIcon
+              size="lg"
+              radius="xl"
+              onClick={togglePlay}
+              title={playerState?.isPlaying ? "Pause (Space)" : "Play (Space)"}
+            >
+              {playerState?.isPlaying ? (
+                <IconPlayerPause size={26} className="text-white" />
+              ) : (
+                <IconPlayerPlay size={26} className="text-white" />
+              )}
+            </ActionIcon>
+            <ActionIcon
+              size="md"
+              variant="transparent"
+              onClick={() => skipForward(5)}
+              title="Forward 5 seconds (→)"
+            >
+              <IconPlayerSkipForward size={22} />
+            </ActionIcon>
+            <ActionIcon
+              size="md"
+              variant="transparent"
+              onClick={playNextTrack}
+              title="Next track (Shift+→)"
+            >
+              <IconPlayerTrackNext size={22} />
+            </ActionIcon>
+          </Group>
+          <Group justify="center">
+            <Group gap="xs" align="center">
+              <ActionIcon
+                onClick={toggleMute}
+                title={isMuted ? "Unmute (M)" : "Mute (M)"}
+              >
+                {isMuted ? (
+                  <IconVolumeOff size={18} />
+                ) : (
+                  <IconVolume size={18} />
+                )}
+              </ActionIcon>
+              <Slider
+                value={playerState.volume * 100}
+                onChange={(value) => handleVolumeChange(value)}
+                color="blue"
+                size="sm"
+                radius="xl"
+                w={80}
+                min={0}
+                max={100}
+                step={1}
+                title="Volume (↑↓)"
+              />
+            </Group>
+            <Button
+              size="xs"
+              variant="subtle"
+              leftSection={<IconSearch size={16} />}
+              onClick={onSearch}
+              title="Search for music"
+            >
+              Search
+            </Button>
+            <Button
+              size="xs"
+              variant="subtle"
+              leftSection={<IconPlaylist size={16} />}
+              onClick={() => navigate("/queue")}
+              title="Queue"
+            >
+              Queue ({playerState.queue.length})
+            </Button>
+            <Button
+              size="xs"
+              variant="subtle"
+              onClick={() => setShowLyrics(!showLyrics)}
+              title="Show/Hide Lyrics"
+            >
+              <Tooltip
+                opened={showLyrics}
+                position="top"
+                w={500}
+                style={{
+                  whiteSpace: "preserve-breaks",
+                }}
+                label={lyrics}
+              >
+                <span>Lyrics</span>
+              </Tooltip>
+            </Button>
+          </Group>
+        </Stack>
+      </Group>
     </Paper>
   );
 };

@@ -1,52 +1,60 @@
-import { createContext, useContext, ReactNode, useState, useEffect } from 'react';
-import { Track, PlayerState, PlayerContextProps } from '../types/types';
-import * as audioService from '../services/audioServices';
+import {
+  createContext,
+  useContext,
+  ReactNode,
+  useState,
+  useEffect,
+} from "react";
+import { Track, PlayerState, PlayerContextProps } from "../types";
+import * as audioService from "../services/audioServices";
 
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
 
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
-  const [playerState, setPlayerState] = useState<PlayerState>(audioService.getPlayerState());
+  const [playerState, setPlayerState] = useState<PlayerState>(
+    audioService.getPlayerState()
+  );
   const [notification, setNotification] = useState<{
-    type: 'success' | 'error';
+    type: "success" | "error";
     message: string;
   } | null>(null);
 
   const handleStateUpdate = () => {
-    setPlayerState({...audioService.getPlayerState()});
+    setPlayerState({ ...audioService.getPlayerState() });
   };
 
   useEffect(() => {
     const events: audioService.AudioServiceEvent[] = [
-      'play', 
-      'pause', 
-      'trackChange', 
-      'timeUpdate', 
-      'queueUpdate', 
-      'volumeChange', 
-      'end'
+      "play",
+      "pause",
+      "trackChange",
+      "timeUpdate",
+      "queueUpdate",
+      "volumeChange",
+      "end",
     ];
-    
-    events.forEach(event => {
+
+    events.forEach((event) => {
       audioService.addEventListener(event, handleStateUpdate);
     });
 
-    setPlayerState({...audioService.getPlayerState()});
-    
+    setPlayerState({ ...audioService.getPlayerState() });
+
     const interval = setInterval(() => {
-      setPlayerState({...audioService.getPlayerState()});
+      setPlayerState({ ...audioService.getPlayerState() });
     }, 500);
 
     return () => {
-      events.forEach(event => {
+      events.forEach((event) => {
         audioService.removeEventListener(event, handleStateUpdate);
       });
       clearInterval(interval);
     };
   }, []);
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
+  const showNotification = (type: "success" | "error", message: string) => {
     setNotification({ type, message });
-    
+
     setTimeout(() => {
       setNotification(null);
     }, 3000);
@@ -54,21 +62,21 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
   const playTrack = (track: Track) => {
     audioService.playTrack(track);
-    showNotification('success', `Now playing: "${track.title}"`);
+    showNotification("success", `Now playing: "${track.title}"`);
   };
 
   const queueTrack = (track: Track) => {
     audioService.queueTrack(track);
-    showNotification('success', `"${track.title}" added to queue`);
+    showNotification("success", `"${track.title}" added to queue`);
   };
 
   const togglePlay = () => {
     const isPlaying = audioService.togglePlay();
     if (playerState.currentTrack) {
-      const message = isPlaying ? 
-        `Playing: "${playerState.currentTrack.title}"` : 
-        `Paused: "${playerState.currentTrack.title}"`;
-      showNotification('success', message);
+      const message = isPlaying
+        ? `Playing: "${playerState.currentTrack.title}"`
+        : `Paused: "${playerState.currentTrack.title}"`;
+      showNotification("success", message);
     }
     return isPlaying;
   };
@@ -84,7 +92,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const playNextTrack = () => {
     const nextTrack = audioService.playNextTrack();
     if (nextTrack) {
-      showNotification('success', `Now playing: "${nextTrack.title}"`);
+      showNotification("success", `Now playing: "${nextTrack.title}"`);
     }
     return nextTrack;
   };
@@ -92,7 +100,10 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const playPreviousTrack = () => {
     audioService.playPreviousTrack();
     if (playerState.currentTrack) {
-      showNotification('success', `Restarted: "${playerState.currentTrack.title}"`);
+      showNotification(
+        "success",
+        `Restarted: "${playerState.currentTrack.title}"`
+      );
     }
   };
 
@@ -102,7 +113,7 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
   const clearQueue = () => {
     audioService.clearQueue();
-    showNotification('success', 'Queue cleared');
+    showNotification("success", "Queue cleared");
   };
 
   const value = {
@@ -117,20 +128,18 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
     setVolume,
     clearQueue,
     notification,
-    showNotification
+    showNotification,
   };
 
   return (
-    <PlayerContext.Provider value={value}>
-      {children}
-    </PlayerContext.Provider>
+    <PlayerContext.Provider value={value}>{children}</PlayerContext.Provider>
   );
 };
 
 export const usePlayerContext = () => {
   const context = useContext(PlayerContext);
   if (context === undefined) {
-    throw new Error('usePlayerContext must be used within a PlayerProvider');
+    throw new Error("usePlayerContext must be used within a PlayerProvider");
   }
   return context;
 };

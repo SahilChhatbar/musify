@@ -22,7 +22,7 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { searchTracks } from "../../../api/deezerAPI";
 import { useDebouncedValue } from "@mantine/hooks";
-import { Track } from "../../../types/types";
+import { Track } from "../../../types";
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
 
@@ -100,6 +100,7 @@ const Search = () => {
             cols={{ base: 1, sm: 2, md: 3 }}
             spacing="lg"
             verticalSpacing="lg"
+            pb={150}
           >
             {data.data.map((track: Track) => (
               <Card

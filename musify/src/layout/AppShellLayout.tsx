@@ -11,20 +11,15 @@ const AppShellLayout = () => {
   };
 
   return (
-    <AppShell 
-      className="min-h-screen" 
-      padding="md"
-    >
-      <AppShell.Main
-        className="rounded-md overflow-hidden relative pb-36"
-      >
+    <AppShell className="min-h-screen" padding="md" pb="xl">
+      <AppShell.Main className="rounded-md overflow-hidden">
         <Box className="h-full overflow-auto p-6">
           <Outlet />
         </Box>
-        <Box className="fixed bottom-0 left-0 right-0 px-6 py-4 border-t border-gray-800 shadow-lg z-10">
-          <MusicPlayer onSearch={handleSearchClick} />
-        </Box>
       </AppShell.Main>
+      <AppShell.Footer withBorder={false}>
+        <MusicPlayer onSearch={handleSearchClick} />
+      </AppShell.Footer>
     </AppShell>
   );
 };
