@@ -4,27 +4,19 @@ import { useNavigate } from "react-router-dom";
 const HomePage = () => {
   const navigate = useNavigate();
 
-  const handleSearchClick = () => {
-    navigate("/search");
-  };
-  
-  const handleQueueClick = () => {
-    navigate("/queue");
-  };
-
   return (
     <Stack gap="xl" mb={10}>
       <Group justify="center" className="mt-4">
         <Button 
           variant="filled" 
           color="blue" 
-          onClick={handleSearchClick}
+          onClick={() => navigate("/search")}
         >
           Browse Music
         </Button>
         <Button 
           variant="outline" 
-          onClick={handleQueueClick}
+          onClick={() => navigate("/queue")}
         >
           View Queue
         </Button>

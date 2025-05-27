@@ -94,14 +94,13 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
         setLyrics(newLyrics);
       }
     };
-
     fetchLyrics();
   }, [playerState?.currentTrack]);
 
   return (
-    <Paper p="md" radius="md" w={1110} mx="auto" bg="dark" c="white">
+    <Paper p="md" radius="md" w="80%" mx="auto" bg="#393937" c="white">
       <Group justify="between" align="start">
-        <Group p={0}>
+        <Group>
           {playerState?.currentTrack ? (
             <>
               <Image
@@ -158,7 +157,6 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               radius="xl"
               min={0}
               mx="auto"
-              max={100}
             />
             <Text size="xs" c="dimmed" w={40}>
               {formatTime(duration)}
@@ -169,7 +167,6 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               size="md"
               variant="transparent"
               onClick={playPreviousTrack}
-              title="Previous track (Shift+←)"
             >
               <IconPlayerTrackPrev size={22} />
             </ActionIcon>
@@ -177,16 +174,10 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               size="md"
               variant="transparent"
               onClick={() => skipBackward(5)}
-              title="Back 5 seconds (←)"
             >
               <IconPlayerSkipBack size={22} />
             </ActionIcon>
-            <ActionIcon
-              size="lg"
-              radius="xl"
-              onClick={togglePlay}
-              title={playerState?.isPlaying ? "Pause (Space)" : "Play (Space)"}
-            >
+            <ActionIcon size="lg" radius="xl" onClick={togglePlay}>
               {playerState?.isPlaying ? (
                 <IconPlayerPause size={26} className="text-white" />
               ) : (
@@ -197,25 +188,16 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               size="md"
               variant="transparent"
               onClick={() => skipForward(5)}
-              title="Forward 5 seconds (→)"
             >
               <IconPlayerSkipForward size={22} />
             </ActionIcon>
-            <ActionIcon
-              size="md"
-              variant="transparent"
-              onClick={playNextTrack}
-              title="Next track (Shift+→)"
-            >
+            <ActionIcon size="md" variant="transparent" onClick={playNextTrack}>
               <IconPlayerTrackNext size={22} />
             </ActionIcon>
           </Group>
           <Group justify="center">
             <Group gap="xs" align="center">
-              <ActionIcon
-                onClick={toggleMute}
-                title={isMuted ? "Unmute (M)" : "Mute (M)"}
-              >
+              <ActionIcon onClick={toggleMute}>
                 {isMuted ? (
                   <IconVolumeOff size={18} />
                 ) : (
@@ -232,7 +214,6 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
                 min={0}
                 max={100}
                 step={1}
-                title="Volume (↑↓)"
               />
             </Group>
             <Button
@@ -240,7 +221,6 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               variant="subtle"
               leftSection={<IconSearch size={16} />}
               onClick={onSearch}
-              title="Search for music"
             >
               Search
             </Button>
@@ -249,7 +229,6 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               variant="subtle"
               leftSection={<IconPlaylist size={16} />}
               onClick={() => navigate("/queue")}
-              title="Queue"
             >
               Queue ({playerState.queue.length})
             </Button>
@@ -257,14 +236,13 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               size="xs"
               variant="subtle"
               onClick={() => setShowLyrics(!showLyrics)}
-              title="Show/Hide Lyrics"
             >
               <Tooltip
                 opened={showLyrics}
                 position="top"
-                w={500}
+                w="30%"
                 style={{
-                  whiteSpace: "preserve-breaks",
+                  whiteSpace: "wrap",
                 }}
                 label={lyrics}
               >

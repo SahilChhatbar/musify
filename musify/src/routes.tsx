@@ -1,4 +1,4 @@
-import { createBrowserRouter, Navigate } from "react-router-dom";
+import { createBrowserRouter } from "react-router-dom";
 import AppShellLayout from "./layout/AppShellLayout";
 import Search from "./pages/home/components/Search";
 import HomePage from "./pages/home";
@@ -20,10 +20,6 @@ export const router = createBrowserRouter([
       {
         path: "/queue",
         element: <QueueComponent />,
-      },
-      {
-        path: "*",
-        element: <Navigate to="/" replace />,
       },
     ],
   },

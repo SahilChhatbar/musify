@@ -8,14 +8,12 @@ import {
   Button,
   Divider,
   Center,
-  Alert,
   Progress,
   Box,
 } from "@mantine/core";
 import {
   IconPlayerPlay,
   IconPlayerPause,
-  IconAlertCircle,
   IconPlayerSkipForward,
   IconPlayerSkipBack,
   IconPlaylistX,
@@ -24,6 +22,7 @@ import {
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
 import { useNavigate } from "react-router";
+import { Notification } from "./Notification";
 
 const Queue = () => {
   const {
@@ -47,13 +46,15 @@ const Queue = () => {
   return (
     <Container size="lg">
       <Stack gap="lg">
-        {notification && notification.type === "error" && (
-          <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
-            {notification.message}
-          </Alert>
+        {notification && (
+          <Notification
+            type={notification.type}
+            message={notification.message}
+            onClose={() => {}}
+          />
         )}
         <Group justify="space-between">
-          <Title order={2}>Your Queue</Title>
+          <Title order={2} c="dark">Your Queue</Title>
           {playerState?.queue?.length > 0 && (
             <Button
               variant="subtle"
@@ -67,7 +68,7 @@ const Queue = () => {
         </Group>
         {playerState?.currentTrack && (
           <Box>
-            <Title order={4}>Now Playing</Title>
+            <Title order={4} c="dark" mb={10}>Now Playing</Title>
             <Card padding="md" radius="md">
               <Stack>
                 <Group justify="space-between">
@@ -76,7 +77,6 @@ const Queue = () => {
                       variant="light"
                       color="blue"
                       onClick={togglePlay}
-                      title={playerState.isPlaying ? "Pause" : "Play"}
                       radius="xl"
                       size="sm"
                     >
@@ -94,18 +94,10 @@ const Queue = () => {
                     </Stack>
                   </Group>
                   <Group>
-                    <Button
-                      variant="subtle"
-                      onClick={playPreviousTrack}
-                      title="Previous"
-                    >
+                    <Button variant="subtle" onClick={playPreviousTrack}>
                       <IconPlayerSkipBack size={16} />
                     </Button>
-                    <Button
-                      variant="subtle"
-                      onClick={playNextTrack}
-                      title="Next"
-                    >
+                    <Button variant="subtle" onClick={playNextTrack}>
                       <IconPlayerSkipForward size={16} />
                     </Button>
                   </Group>
@@ -122,7 +114,7 @@ const Queue = () => {
                   />
                   <Text size="xs" c="dimmed" w={40}>
                     {formatTime(
-                      Math.min(30, playerState?.currentTrack?.duration || 30)
+                      Math.min(30, playerState?.currentTrack?.duration)
                     )}
                   </Text>
                 </Group>
@@ -132,8 +124,8 @@ const Queue = () => {
         )}
         {playerState?.queue?.length > 0 ? (
           <Box mb={10}>
-            <Divider />
-            <Title order={4} mt={10}>
+            <Divider color="white"/>
+            <Title order={4} mt={10} c="dark" mb={10}>
               Next Up
             </Title>
             <Stack gap="md" pb={150}>

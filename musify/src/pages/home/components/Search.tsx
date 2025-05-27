@@ -10,14 +10,12 @@ import {
   Button,
   Loader,
   Center,
-  Notification,
   Title,
 } from "@mantine/core";
 import {
   IconSearch,
   IconPlayerPlay,
   IconPlaylistAdd,
-  IconCheck,
 } from "@tabler/icons-react";
 import { useQuery } from "@tanstack/react-query";
 import { searchTracks } from "../../../api/deezerAPI";
@@ -25,6 +23,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { Track } from "../../../types";
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
+import { Notification } from "./Notification";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -46,22 +45,17 @@ const Search = () => {
     <Container size="lg" mb={10}>
       {notification && (
         <Notification
-          title={notification.type === "success" ? "Success" : "Error"}
-          icon={
-            notification.type === "success" ? <IconCheck size={18} /> : null
-          }
-          color={notification.type === "success" ? "green" : "red"}
+          type={notification.type}
+          message={notification.message}
           onClose={() => {}}
-        >
-          {notification.message}
-        </Notification>
+        />
       )}
-      <Title order={2} className="mb-4 text-white">
+      <Title order={2} c="dark" mb={10}>
         Search Music
       </Title>
       <TextInput
         placeholder="Search for tracks, artists, or albums"
-        rightSection={<IconSearch size={18} className="text-gray-400" />}
+        rightSection={<IconSearch size={18} color="white" />}
         value={searchTerm}
         onChange={handleSearchChange}
         size="lg"
@@ -69,8 +63,9 @@ const Search = () => {
         mb={20}
         styles={{
           input: {
-            backgroundColor: "#2D2D2D",
+            backgroundColor: "#393937",
             color: "white",
+            borderColor: "#393937",
           },
         }}
       />
@@ -80,7 +75,7 @@ const Search = () => {
         </Center>
       )}
       {error && (
-        <Text c="red" className="text-center p-8 bg-gray-800 rounded-lg">
+        <Text c="red">
           An error occurred while searching. Please try again.
         </Text>
       )}
@@ -100,7 +95,7 @@ const Search = () => {
             cols={{ base: 1, sm: 2, md: 3 }}
             spacing="lg"
             verticalSpacing="lg"
-            pb={150}
+            pb="15%"
           >
             {data.data.map((track: Track) => (
               <Card

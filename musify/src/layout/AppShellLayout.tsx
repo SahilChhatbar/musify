@@ -11,13 +11,13 @@ const AppShellLayout = () => {
   };
 
   return (
-    <AppShell className="min-h-screen" padding="md" pb="xl">
+    <AppShell className="min-h-screen" padding="md" pb="xl" bg="#cdcfdc">
       <AppShell.Main className="rounded-md overflow-hidden">
         <Box className="h-full overflow-auto p-6">
           <Outlet />
         </Box>
       </AppShell.Main>
-      <AppShell.Footer withBorder={false}>
+      <AppShell.Footer withBorder={false} bg="#cdcfdc" opacity="0.92">
         <MusicPlayer onSearch={handleSearchClick} />
       </AppShell.Footer>
     </AppShell>

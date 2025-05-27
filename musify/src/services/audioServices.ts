@@ -104,41 +104,26 @@ export const playTrack = (track: Track): void => {
     playerState.isPlaying = false;
     savePlayerState(playerState);
   });
-
+  
   notifyListeners("trackChange");
   notifyListeners("play");
 };
 
-export const queueTrack = (track: Track): QueueItem => {
+export const queueTrack = (track: Track, playImmediately = false): QueueItem => {
   const playerState = getPlayerState();
-
   const queueItem: QueueItem = {
     track,
     queuedAt: new Date(),
   };
 
-  if (!playerState.currentTrack) {
+  if (playImmediately || !playerState.currentTrack) {
     playTrack(track);
   } else {
     playerState.queue.push(queueItem);
     savePlayerState(playerState);
     notifyListeners("queueUpdate");
   }
-  return queueItem;
-};
-
-export const forceQueueTrack = (track: Track): QueueItem => {
-  const playerState = getPlayerState();
-
-  const queueItem: QueueItem = {
-    track,
-    queuedAt: new Date(),
-  };
-
-  playerState.queue.push(queueItem);
-  savePlayerState(playerState);
-  notifyListeners("queueUpdate");
-
+  
   return queueItem;
 };
 
@@ -292,7 +277,6 @@ export default {
   getPlayerState,
   playTrack,
   queueTrack,
-  forceQueueTrack,
   togglePlay,
   skipForward,
   skipBackward,

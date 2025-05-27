@@ -9,10 +9,6 @@ import { PlayerState } from '../types';
 
 export const useAudioPlayer = () => {
   const [playerState, setPlayerState] = useState<PlayerState>(getPlayerState());
-  const [notification, setNotification] = useState<{
-    type: 'success' | 'error';
-    message: string;
-  } | null>(null);
 
   const handleStateUpdate = () => {
     setPlayerState({...getPlayerState()});
@@ -47,15 +43,8 @@ export const useAudioPlayer = () => {
     };
   }, []);
 
-  const showNotification = (type: 'success' | 'error', message: string) => {
-    setNotification({ type, message });
-    
-    setTimeout(() => {
-      setNotification(null);
-    }, 3000);
-  };
 
-  return { playerState, notification, showNotification };
+  return { playerState };
 };
 
 export default useAudioPlayer;
