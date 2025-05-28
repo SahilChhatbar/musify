@@ -8,6 +8,8 @@ import {
   Slider,
   Image,
   Button,
+  ScrollArea,
+  Popover,
 } from "@mantine/core";
 import {
   IconPlayerPlay,
@@ -21,15 +23,15 @@ import {
   IconPlaylist,
   IconSearch,
 } from "@tabler/icons-react";
-import { MusicPlayerProps } from "../../../types";
+import { MusicPlayerProps } from "../../../types/index";
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
 import { useNavigate } from "react-router";
-import { Tooltip } from "@mantine/core";
 import { getLyrics } from "../../../api/deezerAPI";
 
-const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
+const Player = ({ onSearch }: MusicPlayerProps) => {
   const navigate = useNavigate();
+
   const {
     playerState,
     togglePlay,
@@ -43,7 +45,7 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
   const [isMuted, setIsMuted] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isDragging, setIsDragging] = useState(false);
-
+  const [currentTrackId, setCurrentTrackId] = useState<number | null>(null);
   const [lyrics, setLyrics] = useState<string>("Loading lyrics...");
   const [showLyrics, setShowLyrics] = useState(false);
 
@@ -86,7 +88,11 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
 
   useEffect(() => {
     const fetchLyrics = async () => {
-      if (playerState?.currentTrack) {
+      if (
+        playerState?.currentTrack &&
+        playerState.currentTrack.id !== currentTrackId
+      ) {
+        setCurrentTrackId(playerState.currentTrack.id);
         const newLyrics = await getLyrics(
           playerState.currentTrack.artist.name,
           playerState.currentTrack.title
@@ -95,10 +101,10 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
       }
     };
     fetchLyrics();
-  }, [playerState?.currentTrack]);
+  }, [playerState?.currentTrack?.id]);
 
   return (
-    <Paper p="md" radius="md" w="80%" mx="auto" bg="#393937" c="white">
+    <Paper p="md" radius="md" w="80.25%" mx="auto" bg="#393937" c="white">
       <Group justify="between" align="start">
         <Group>
           {playerState?.currentTrack ? (
@@ -108,13 +114,13 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
                   playerState?.currentTrack?.album?.cover_medium ||
                   "/api/placeholder/60/100"
                 }
-                width={20}
+                width={60}
                 height={100}
                 radius="md"
                 alt={playerState?.currentTrack?.title}
               />
               <Stack gap="xs">
-                <Text size="sm" fw={600} className="truncate max-w-xs">
+                <Text size="sm" fw={600}>
                   {playerState?.currentTrack?.title}
                 </Text>
                 <Text size="xs" c="dimmed">
@@ -179,9 +185,9 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
             </ActionIcon>
             <ActionIcon size="lg" radius="xl" onClick={togglePlay}>
               {playerState?.isPlaying ? (
-                <IconPlayerPause size={26} className="text-white" />
+                <IconPlayerPause size={26} />
               ) : (
-                <IconPlayerPlay size={26} className="text-white" />
+                <IconPlayerPlay size={26} />
               )}
             </ActionIcon>
             <ActionIcon
@@ -237,17 +243,21 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
               variant="subtle"
               onClick={() => setShowLyrics(!showLyrics)}
             >
-              <Tooltip
+              <Popover
                 opened={showLyrics}
                 position="top"
-                w="30%"
-                style={{
-                  whiteSpace: "wrap",
-                }}
-                label={lyrics}
+                width="30%"
+                withinPortal
               >
-                <span>Lyrics</span>
-              </Tooltip>
+                <Popover.Target>
+                  <span>Lyrics</span>
+                </Popover.Target>
+                <Popover.Dropdown>
+                  <ScrollArea h={200}>
+                    <Text style={{ whiteSpace: "pre-wrap" }}>{lyrics}</Text>
+                  </ScrollArea>
+                </Popover.Dropdown>
+              </Popover>
             </Button>
           </Group>
         </Stack>
@@ -256,4 +266,4 @@ const MusicPlayer = ({ onSearch }: MusicPlayerProps) => {
   );
 };
 
-export default MusicPlayer;
+export default Player;

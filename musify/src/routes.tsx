@@ -2,7 +2,7 @@ import { createBrowserRouter } from "react-router-dom";
 import AppShellLayout from "./layout/AppShellLayout";
 import Search from "./pages/home/components/Search";
 import HomePage from "./pages/home";
-import QueueComponent from "./pages/home/components/Queue";
+import Queue from "./pages/home/components/Queue";
 
 export const router = createBrowserRouter([
   {
@@ -19,7 +19,7 @@ export const router = createBrowserRouter([
       },
       {
         path: "/queue",
-        element: <QueueComponent />,
+        element: <Queue />,
       },
     ],
   },

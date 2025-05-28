@@ -1,6 +1,6 @@
 import { AppShell, Box } from "@mantine/core";
 import { Outlet } from "react-router-dom";
-import MusicPlayer from "../pages/home/components/Player";
+import Player from "../pages/home/components/Player";
 import { useNavigate } from "react-router-dom";
 
 const AppShellLayout = () => {
@@ -11,14 +11,14 @@ const AppShellLayout = () => {
   };
 
   return (
-    <AppShell className="min-h-screen" padding="md" pb="xl" bg="#cdcfdc">
+    <AppShell className="min-h-screen" padding="md" pb="xl" bg="#F1EFEC">
       <AppShell.Main className="rounded-md overflow-hidden">
         <Box className="h-full overflow-auto p-6">
           <Outlet />
         </Box>
       </AppShell.Main>
-      <AppShell.Footer withBorder={false} bg="#cdcfdc" opacity="0.92">
-        <MusicPlayer onSearch={handleSearchClick} />
+      <AppShell.Footer withBorder={false} bg="#F1EFEC" opacity="0.92">
+        <Player onSearch={handleSearchClick} />
       </AppShell.Footer>
     </AppShell>
   );

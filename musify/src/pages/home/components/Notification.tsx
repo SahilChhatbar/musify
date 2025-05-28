@@ -1,8 +1,8 @@
 import { Notification as MantineNotification, Alert } from "@mantine/core";
 import { IconCheck, IconAlertCircle } from "@tabler/icons-react";
-import { NotificationProps } from "../../../types";
+import { NotificationProps } from "../../../types/index";
 
-export const Notification = ({ type, message }: NotificationProps) => {
+const Notification = ({ type, message }: NotificationProps) => {
   if (type === "error") {
     return (
       <Alert icon={<IconAlertCircle size={16} />} title="Error" color="red">
@@ -22,3 +22,5 @@ export const Notification = ({ type, message }: NotificationProps) => {
     </MantineNotification>
   );
 };
+
+export default Notification;

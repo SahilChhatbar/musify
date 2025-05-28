@@ -23,7 +23,7 @@ import { useDebouncedValue } from "@mantine/hooks";
 import { Track } from "../../../types";
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
-import { Notification } from "./Notification";
+import Notification from "./Notification";
 
 const Search = () => {
   const [searchTerm, setSearchTerm] = useState("");
@@ -103,7 +103,6 @@ const Search = () => {
                 shadow="md"
                 padding="lg"
                 radius="md"
-                style={{ borderColor: "#3b3b4f" }}
               >
                 <Card.Section>
                   <Image
@@ -124,7 +123,6 @@ const Search = () => {
                   <Text
                     size="sm"
                     c="dimmed"
-                    className="bg-gray-700 px-2 py-1 rounded"
                   >
                     {formatTime(track?.duration)}
                   </Text>

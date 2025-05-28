@@ -42,19 +42,29 @@ export const getTrack = async (id: number): Promise<Track> => {
   }
 };
 
+const lyricsCache: Record<string, string> = {};
+
 export const getLyrics = async (
   artist: string,
   title: string
 ): Promise<string> => {
+  const cacheKey = `${artist}-${title}`;
+  
+  if (lyricsCache[cacheKey]) {
+    return lyricsCache[cacheKey];
+  }
+
   try {
     const response = await axios.get(
       `https://api.lyrics.ovh/v1/${encodeURIComponent(
         artist
       )}/${encodeURIComponent(title)}`
     );
+    lyricsCache[cacheKey] = response.data.lyrics;
     return response.data.lyrics;
   } catch (error) {
     console.error("Error fetching lyrics:", error);
+    lyricsCache[cacheKey] = "Lyrics not available";
     return "Lyrics not available";
   }
 };

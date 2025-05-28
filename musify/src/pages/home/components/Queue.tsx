@@ -22,7 +22,7 @@ import {
 import { usePlayerContext } from "../../../context/PlayerContext";
 import { formatTime } from "../../../util/formatTime";
 import { useNavigate } from "react-router";
-import { Notification } from "./Notification";
+import Notification from "./Notification";
 
 const Queue = () => {
   const {

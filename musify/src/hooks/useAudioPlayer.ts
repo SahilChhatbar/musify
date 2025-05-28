@@ -5,7 +5,7 @@ import {
   getPlayerState,
   AudioServiceEvent
 } from '../services/audioServices';
-import { PlayerState } from '../types';
+import { PlayerState } from '../types/index';
 
 export const useAudioPlayer = () => {
   const [playerState, setPlayerState] = useState<PlayerState>(getPlayerState());

@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import { Track, PlayerContextProps } from "../types";
+import { Track, PlayerContextProps } from "../types/index";
 import * as audioService from "../services/audioServices";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
 import { useNotification } from "../hooks/useNotification";
@@ -12,7 +12,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
   const playTrack = (track: Track) => {
     audioService.playTrack(track);
-    showNotification("success", `Now playing: "${track.title}"`);
   };
 
   const queueTrack = (track: Track) => {
@@ -22,12 +21,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
   const togglePlay = () => {
     const isPlaying = audioService.togglePlay();
-    if (playerState.currentTrack) {
-      const message = isPlaying
-        ? `Playing: "${playerState.currentTrack.title}"`
-        : `Paused: "${playerState.currentTrack.title}"`;
-      showNotification("success", message);
-    }
     return isPlaying;
   };
 
@@ -49,12 +42,6 @@ export const PlayerProvider = ({ children }: { children: ReactNode }) => {
 
   const playPreviousTrack = () => {
     audioService.playPreviousTrack();
-    if (playerState.currentTrack) {
-      showNotification(
-        "success",
-        `Restarted: "${playerState.currentTrack.title}"`
-      );
-    }
   };
 
   const setVolume = (volume: number) => {
