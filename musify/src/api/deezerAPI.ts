@@ -1,4 +1,4 @@
-import axios, { AxiosResponse } from "axios";
+import axios from "axios";
 import { Track, SearchResult } from "../types";
 
 const deezerApi = axios.create({
@@ -14,63 +14,37 @@ export const searchTracks = async (
   limit: number = 20,
   index: number = 0
 ): Promise<SearchResult> => {
-  try {
-    const response: AxiosResponse<SearchResult> = await deezerApi.get(
-      "/search",
-      {
-        params: {
-          q: query,
-          limit,
-          index,
-        },
-      }
-    );
-    return response.data;
-  } catch (error) {
-    console.error("Error searching tracks:", error);
-    throw error;
-  }
+  const response = await deezerApi.get("/search", {
+    params: { q: query, limit, index },
+  });
+  return response.data;
 };
 
 export const getTrack = async (id: number): Promise<Track> => {
-  try {
-    const response: AxiosResponse<Track> = await deezerApi.get(`/track/${id}`);
-    return response.data;
-  } catch (error) {
-    console.error(`Error fetching track ${id}:`, error);
-    throw error;
-  }
+  const response = await deezerApi.get(`/track/${id}`);
+  return response.data;
 };
 
-const lyricsCache: Record<string, string> = {};
+const lyricsCache = new Map<string, string>();
 
-export const getLyrics = async (
-  artist: string,
-  title: string
-): Promise<string> => {
+export const getLyrics = async (artist: string, title: string): Promise<string> => {
   const cacheKey = `${artist}-${title}`;
   
-  if (lyricsCache[cacheKey]) {
-    return lyricsCache[cacheKey];
+  if (lyricsCache.has(cacheKey)) {
+    return lyricsCache.get(cacheKey)!;
   }
 
   try {
     const response = await axios.get(
-      `https://api.lyrics.ovh/v1/${encodeURIComponent(
-        artist
-      )}/${encodeURIComponent(title)}`
+      `https://api.lyrics.ovh/v1/${encodeURIComponent(artist)}/${encodeURIComponent(title)}`
     );
-    lyricsCache[cacheKey] = response.data.lyrics;
-    return response.data.lyrics;
+    const lyrics = response.data.lyrics || "Lyrics not available";
+    lyricsCache.set(cacheKey, lyrics);
+    return lyrics;
   } catch (error) {
     console.error("Error fetching lyrics:", error);
-    lyricsCache[cacheKey] = "Lyrics not available";
-    return "Lyrics not available";
+    const fallback = "Lyrics not available";
+    lyricsCache.set(cacheKey, fallback);
+    return fallback;
   }
-};
-
-export default {
-  searchTracks,
-  getTrack,
-  getLyrics,
 };

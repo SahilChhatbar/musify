@@ -41,6 +41,12 @@ export interface MusicPlayerProps {
   onSearch?: () => void;
 }
 
+export interface NotificationProps {
+  type: "success" | "error";
+  message: string;
+  onClose?: () => void;
+}
+
 export interface PlayerContextProps {
   playerState: PlayerState;
   playTrack: (track: Track) => void;
@@ -52,15 +58,6 @@ export interface PlayerContextProps {
   playPreviousTrack: () => void;
   setVolume: (volume: number) => number;
   clearQueue: () => void;
-  notification: {
-    type: "success" | "error";
-    message: string;
-  } | null;
+  notification: NotificationProps | null;
   showNotification: (type: "success" | "error", message: string) => void;
-}
-
-export interface NotificationProps {
-  type: "success" | "error";
-  message: string;
-  onClose?: () => void;
 }

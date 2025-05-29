@@ -247,7 +247,6 @@ const Player = ({ onSearch }: MusicPlayerProps) => {
                 opened={showLyrics}
                 position="top"
                 width="30%"
-                withinPortal
               >
                 <Popover.Target>
                   <span>Lyrics</span>

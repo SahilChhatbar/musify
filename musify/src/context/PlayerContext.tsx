@@ -1,57 +1,60 @@
-import { createContext, useContext, ReactNode } from "react";
-import { Track, PlayerContextProps } from "../types/index";
+import { createContext, useContext, ReactNode, useState, useCallback } from "react";
+import { Track, PlayerContextProps, NotificationProps } from "../types";
 import * as audioService from "../services/audioServices";
 import { useAudioPlayer } from "../hooks/useAudioPlayer";
-import { useNotification } from "../hooks/useNotification";
 
 const PlayerContext = createContext<PlayerContextProps | undefined>(undefined);
 
 export const PlayerProvider = ({ children }: { children: ReactNode }) => {
   const { playerState } = useAudioPlayer();
-  const { notification, showNotification } = useNotification();
+  const [notification, setNotification] = useState<NotificationProps | null>(null);
 
-  const playTrack = (track: Track) => {
+  const showNotification = useCallback((type: "success" | "error", message: string) => {
+    setNotification({ type, message });
+    setTimeout(() => setNotification(null), 3000);
+  }, []);
+
+  const playTrack = useCallback((track: Track) => {
     audioService.playTrack(track);
-  };
+  }, []);
 
-  const queueTrack = (track: Track) => {
+  const queueTrack = useCallback((track: Track) => {
     audioService.queueTrack(track);
     showNotification("success", `"${track.title}" added to queue`);
-  };
+  }, [showNotification]);
 
-  const togglePlay = () => {
-    const isPlaying = audioService.togglePlay();
-    return isPlaying;
-  };
+  const togglePlay = useCallback(() => {
+    return audioService.togglePlay();
+  }, []);
 
-  const skipForward = (seconds: number = 5) => {
+  const skipForward = useCallback((seconds: number = 5) => {
     return audioService.skipForward(seconds);
-  };
+  }, []);
 
-  const skipBackward = (seconds: number = 5) => {
+  const skipBackward = useCallback((seconds: number = 5) => {
     return audioService.skipBackward(seconds);
-  };
+  }, []);
 
-  const playNextTrack = () => {
+  const playNextTrack = useCallback(() => {
     const nextTrack = audioService.playNextTrack();
     if (nextTrack) {
       showNotification("success", `Now playing: "${nextTrack.title}"`);
     }
     return nextTrack;
-  };
+  }, [showNotification]);
 
-  const playPreviousTrack = () => {
+  const playPreviousTrack = useCallback(() => {
     audioService.playPreviousTrack();
-  };
+  }, []);
 
-  const setVolume = (volume: number) => {
+  const setVolume = useCallback((volume: number) => {
     return audioService.setVolume(volume);
-  };
+  }, []);
 
-  const clearQueue = () => {
+  const clearQueue = useCallback(() => {
     audioService.clearQueue();
     showNotification("success", "Queue cleared");
-  };
+  }, [showNotification]);
 
   const value = {
     playerState,
